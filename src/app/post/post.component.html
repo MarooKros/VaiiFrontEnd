@@ -1,2 +1,30 @@
-<p>post works!</p>
-<button routerLink="/">Go Back to Main Page</button>
+<div class="header">
+  <h1>Recenzie</h1>
+</div>
+
+<!-- Create Post Box -->
+<div class="create-post-box">
+  <input type="text" placeholder="Title" [(ngModel)]="newPost.title" />
+  <textarea placeholder="Write your post..." [(ngModel)]="newPost.text"></textarea>
+  <button (click)="createPost()">Post</button>
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+</div>
+
+<!-- Post Boxes -->
+<div class="content-box">
+  <div class="post-box" *ngFor="let post of posts">
+    <div class="post-header">
+      <h3>{{ post.title }}</h3>
+      <span>by {{ post.user.name || 'Unknown' }}</span>
+    </div>
+    <p>{{ post.text }}</p>
+
+    <!-- Comments Section -->
+    <select>
+      <option value="" disabled selected>Comments</option>
+      <option *ngFor="let comment of post.comments">
+        {{ comment.text }} - {{ comment.User.name || 'Anonymous' }}
+      </option>
+    </select>
+  </div>
+</div>

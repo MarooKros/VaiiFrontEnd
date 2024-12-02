@@ -1,40 +1,47 @@
-import axios from 'axios';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { PostModel } from '../Models/PostModel';
 import { CommentModel } from '../Models/CommentModel';
 
-class PostService {
-  private apiUrl = 'http://localhost:7295/api/posts';
+@Injectable({
+  providedIn: 'root'
+})
+export class PostService {
+  private apiUrl = 'https://localhost:7295/api/posts';
 
-  async getPosts(): Promise<PostModel[]> {
-    const response = await axios.get<PostModel[]>(`${this.apiUrl}/getPosts`);
-    return response.data;
+  constructor(private http: HttpClient) {}
+
+  getPosts(): Observable<PostModel[]> {
+    return this.http.get<PostModel[]>(`${this.apiUrl}/getPosts`);
   }
 
-  async getPostById(id: number): Promise<PostModel> {
-    const response = await axios.get<PostModel>(`${this.apiUrl}/getPostById`, { params: { id } });
-    return response.data;
+  getPostById(id: number): Observable<PostModel> {
+    const params = new HttpParams().set('id', id.toString());
+    return this.http.get<PostModel>(`${this.apiUrl}/getPostById`, { params });
   }
 
-  async createPost(post: PostModel): Promise<PostModel> {
-    const response = await axios.post<PostModel>(`${this.apiUrl}/createPost`, post);
-    return response.data;
+  createPost(post: PostModel): Observable<PostModel> {
+    return this.http.post<PostModel>(`${this.apiUrl}/createPost`, post);
   }
 
-  async updatePost(id: number, post: PostModel): Promise<void> {
-    await axios.put(`${this.apiUrl}/editPost`, post, { params: { id } });
+  updatePost(id: number, post: PostModel): Observable<void> {
+    const params = new HttpParams().set('id', id.toString());
+    return this.http.put<void>(`${this.apiUrl}/editPost`, post, { params });
   }
 
-  async addCommentToPost(postId: number, comment: CommentModel): Promise<void> {
-    await axios.post(`${this.apiUrl}/addCommentToPost`, comment, { params: { postId } });
+  addCommentToPost(postId: number, comment: CommentModel): Observable<void> {
+    const params = new HttpParams().set('postId', postId.toString());
+    return this.http.post<void>(`${this.apiUrl}/addCommentToPost`, comment, { params });
   }
 
-  async deletePost(id: number): Promise<void> {
-    await axios.delete(`${this.apiUrl}/deletePost`, { params: { id } });
+  deletePost(id: number): Observable<void> {
+    const params = new HttpParams().set('id', id.toString());
+    return this.http.delete<void>(`${this.apiUrl}/deletePost`, { params });
   }
 
-  async deleteComment(id: number): Promise<void> {
-    await axios.delete(`${this.apiUrl}/deleteComment`, { params: { id } });
+  deleteComment(id: number): Observable<void> {
+    const params = new HttpParams().set('id', id.toString());
+    return this.http.delete<void>(`${this.apiUrl}/deleteComment`, { params });
   }
 }
-
-export default new PostService();
