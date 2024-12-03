@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { UserService } from '../Services/user.service';
 import { AuthService } from '../Services/auth.service';
 import { UserModel } from '../Models/UserModel';
@@ -16,6 +16,8 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
+  @Output() loginSuccess = new EventEmitter<void>();
+
   users: UserModel[] = [];
   name: string = '';
   password: string = '';
@@ -33,6 +35,7 @@ export class LoginComponent {
       this.authService.setUser(user);
       this.errorMessage = '';
       console.log('User logged in:', user);
+      this.loginSuccess.emit();
     } else {
       this.errorMessage = 'Invalid name or password';
     }
