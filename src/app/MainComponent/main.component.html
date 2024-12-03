@@ -1,5 +1,23 @@
 <div class="index-container">
+  <div class="top-right-buttons">
+    <button (click)="showLoginPopup = true">Login</button>
+    <button (click)="showCreateUserPopup = true">Register</button>
+  </div>
+  <app-current-user></app-current-user>
+
   <h1>Welcome to the Main Page</h1>
 
   <button routerLink="/post">Go to Post</button>
+  <button routerLink="/user">Go to User</button>
+
+  <h2 class="centered-header">Aplikácia ešte nie je hotová</h2>
+
+  <div *ngIf="showCreateUserPopup" class="popup-container">
+    <app-user-create (userCreated)="showCreateUserPopup = false" (closePopup)="showCreateUserPopup = false"></app-user-create>
+  </div>
+
+  <div *ngIf="showLoginPopup" class="popup">
+    <app-login (loginSuccess)="showLoginPopup = false"></app-login>
+    <button (click)="showLoginPopup = false" class="close-button">Close</button>
+  </div>
 </div>
