@@ -18,6 +18,7 @@ export class CurrentUserComponent implements OnInit {
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe(user => {
+      console.log('User received:', user); // Debugging line
       this.currentUser = user;
     });
   }

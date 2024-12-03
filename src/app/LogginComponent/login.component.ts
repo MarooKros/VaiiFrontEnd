@@ -11,7 +11,7 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-login',
   standalone: true,
   imports: [RouterModule, CommonModule, HttpClientModule, FormsModule],
-  providers: [UserService, AuthService],
+  providers: [UserService],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
