@@ -6,6 +6,9 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CurrentUserComponent } from '../CurrentUserComponent/currentUser.component';
+import { LoginComponent } from '../LogginComponent/login.component';
+import { UserCreateComponent } from '../UserCreateComponent/userCreate.component';
+import { AuthService } from '../Services/auth.service';
 
 @Component({
   selector: 'app-user',
@@ -15,25 +18,23 @@ import { CurrentUserComponent } from '../CurrentUserComponent/currentUser.compon
     CommonModule,
     HttpClientModule,
     FormsModule,
-    CurrentUserComponent
+    UserCreateComponent,
+    CurrentUserComponent,
+    LoginComponent
   ],
-  providers: [UserService],
+  providers: [UserService,AuthService],
   templateUrl: './user.component.html',
   styleUrls: ['./user.component.scss']
 })
 export class UserComponent implements OnInit {
   users: UserModel[] = [];
   selectedUserId: number | null = null;
+  showCreateUserPopup: boolean = false;
+  showLoginPopup: boolean = false;
 
   constructor(private userService: UserService) {}
 
   ngOnInit(): void {
-    this.userService.getUsers().subscribe((data: UserModel[]) => {
-      this.users = data;
-    });
-  }
-
-  loadUsers(): void {
     this.userService.getUsers().subscribe((data: UserModel[]) => {
       this.users = data;
     });
@@ -51,4 +52,23 @@ export class UserComponent implements OnInit {
       });
     }
   }
+
+  openLoginPopup() {
+    this.showLoginPopup = true;
+    this.showCreateUserPopup = false;
+  }
+
+  openCreateUserPopup() {
+    this.showCreateUserPopup = true;
+    this.showLoginPopup = false;
+  }
+
+  closeLoginPopup() {
+    this.showLoginPopup = false;
+  }
+
+  closeCreateUserPopup() {
+    this.showCreateUserPopup = false;
+  }
 }
+

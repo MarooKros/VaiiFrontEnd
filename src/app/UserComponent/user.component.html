@@ -1,4 +1,8 @@
 <div class="user-box">
+  <div class="top-right-buttons">
+    <button (click)="openLoginPopup()">Login</button>
+    <button class="white-button" (click)="openCreateUserPopup()">Register</button>
+  </div>
   <app-current-user></app-current-user>
   <div class="header-container">
     <button routerLink="/">Go to Main Page</button>
@@ -15,4 +19,14 @@
     <p>No users found.</p>
   </ng-template>
   <button [disabled]="selectedUserId === null" (click)="deleteUser()" [class.active]="selectedUserId !== null">Delete User</button>
+
+  <div *ngIf="showCreateUserPopup" class="popup">
+    <app-user-create (userCreated)="closeCreateUserPopup()" (closePopup)="closeCreateUserPopup()"></app-user-create>
+    <button (click)="closeCreateUserPopup()" class="close-button">Close</button>
+  </div>
+
+  <div *ngIf="showLoginPopup" class="popup">
+    <app-login (loginSuccess)="closeLoginPopup()"></app-login>
+    <button (click)="closeLoginPopup()" class="close-button">Close</button>
+  </div>
 </div>
