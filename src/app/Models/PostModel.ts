@@ -7,5 +7,5 @@ export interface PostModel {
   user: UserModel;
   title: string;
   text: string;
-  comments?: CommentModel[];
+  comments?: CommentModel[] | null;
 }
