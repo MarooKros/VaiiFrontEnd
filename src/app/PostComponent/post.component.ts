@@ -80,6 +80,24 @@ export class PostComponent implements OnInit {
     }
   }
 
+  deletePost(postId: number): void {
+    const currentUser = this.authService.getUser();
+    this.postService.getPostById(postId).subscribe(post => {
+      if (post.userId === currentUser?.id) {
+        this.postService.deletePost(postId).subscribe(() => {
+          console.log('Post deleted successfully');
+          this.loadPosts();
+        }, error => {
+          console.error('Error deleting post', error);
+        });
+      } else {
+        console.error('User is not authorized to delete this post');
+      }
+    }, error => {
+      console.error('Error fetching post', error);
+    });
+  }
+
   openLoginPopup() {
     this.showLoginPopup = true;
     this.showCreateUserPopup = false;

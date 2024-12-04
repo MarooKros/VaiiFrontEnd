@@ -3,12 +3,12 @@
 </div>
 
 <div class="top-right-buttons">
-  <button (click)="openLoginPopup()">Login</button>
-  <button class="white-button" (click)="openCreateUserPopup()">Register</button>
+  <button class="common-button" (click)="openLoginPopup()">Login</button>
+  <button class="common-button" (click)="openCreateUserPopup()">Register</button>
 </div>
 <app-current-user></app-current-user>
 
-<button routerLink="/">Go to Main Page</button>
+<button routerLink="/" class="common-button">Go to Main Page</button>
 
 <div class="create-post-box">
   <input type="text" placeholder="Title" [(ngModel)]="newPost.title" />
@@ -28,18 +28,19 @@
     <select>
       <option value="" disabled selected>Comments</option>
       <option *ngFor="let comment of post.comments">
-        {{ comment.text }} - {{ comment.User.name || 'Anonymous' }}
+        {{ comment.text }} - {{ comment.User?.name || 'Anonymous' }}
       </option>
     </select>
+    <button (click)="deletePost(post.id)" class="delete-button">Delete</button>
   </div>
 </div>
 
 <div *ngIf="showCreateUserPopup" class="popup">
   <app-user-create (userCreated)="closeCreateUserPopup()" (closePopup)="closeCreateUserPopup()"></app-user-create>
-  <button (click)="closeCreateUserPopup()" class="close-button">Close</button>
+  <button (click)="closeCreateUserPopup()" class="close-button white-button">Close</button>
 </div>
 
 <div *ngIf="showLoginPopup" class="popup">
   <app-login (loginSuccess)="closeLoginPopup()"></app-login>
-  <button (click)="closeLoginPopup()" class="close-button">Close</button>
+  <button (click)="closeLoginPopup()" class="close-button white-button">Close</button>
 </div>
