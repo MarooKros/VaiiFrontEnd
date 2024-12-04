@@ -4,6 +4,6 @@ export interface CommentModel {
   id: number;
   postId: number;
   userId: number;
-  User: UserModel;
+  user: UserModel;
   text: string;
 }

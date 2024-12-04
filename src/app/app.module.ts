@@ -9,7 +9,10 @@ import { UserService } from './Services/user.service';
 import { AuthService } from './Services/auth.service';
 
 @NgModule({
-  imports: [BrowserModule, RouterModule.forRoot(routes), HttpClientModule],
+  imports: [
+    BrowserModule,
+    RouterModule.forRoot(routes),
+    HttpClientModule],
   providers: [
     PostService,
     UserService,
