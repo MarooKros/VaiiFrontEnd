@@ -5,5 +5,7 @@
 
   <input type="password" placeholder="Password" [(ngModel)]="password" />
 
+  <button (click)="login()">Login</button>
+
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 </div>
