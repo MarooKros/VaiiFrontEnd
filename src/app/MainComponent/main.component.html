@@ -1,7 +1,7 @@
 <div class="index-container">
   <div class="top-right-buttons">
-    <button (click)="showLoginPopup = true">Login</button>
-    <button (click)="showCreateUserPopup = true">Register</button>
+    <button (click)="openLoginPopup()">Login</button>
+    <button class="white-button" (click)="openCreateUserPopup()">Register</button>
   </div>
   <app-current-user></app-current-user>
 
@@ -12,12 +12,13 @@
 
   <h2 class="centered-header">Aplikácia ešte nie je hotová</h2>
 
-  <div *ngIf="showCreateUserPopup" class="popup-container">
-    <app-user-create (userCreated)="showCreateUserPopup = false" (closePopup)="showCreateUserPopup = false"></app-user-create>
+  <div *ngIf="showCreateUserPopup" class="popup">
+    <app-user-create (userCreated)="closeCreateUserPopup()" (closePopup)="closeCreateUserPopup()"></app-user-create>
+    <button (click)="closeCreateUserPopup()" class="close-button">Close</button>
   </div>
 
   <div *ngIf="showLoginPopup" class="popup">
-    <app-login (loginSuccess)="showLoginPopup = false"></app-login>
-    <button (click)="showLoginPopup = false" class="close-button">Close</button>
+    <app-login (loginSuccess)="closeLoginPopup()"></app-login>
+    <button (click)="closeLoginPopup()" class="close-button">Close</button>
   </div>
 </div>

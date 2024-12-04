@@ -16,4 +16,8 @@ export class AuthService {
   getUser(): UserModel | null {
     return this.currentUserSubject.value;
   }
+
+  logout(): void {
+    this.currentUserSubject.next(null);
+  }
 }

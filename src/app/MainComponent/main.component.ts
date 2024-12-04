@@ -23,4 +23,22 @@ import { AuthService } from '../Services/auth.service';
 export class MainComponent {
   showCreateUserPopup: boolean = false;
   showLoginPopup: boolean = false;
+
+  openLoginPopup() {
+    this.showLoginPopup = true;
+    this.showCreateUserPopup = false;
+  }
+
+  openCreateUserPopup() {
+    this.showCreateUserPopup = true;
+    this.showLoginPopup = false;
+  }
+
+  closeLoginPopup() {
+    this.showLoginPopup = false;
+  }
+
+  closeCreateUserPopup() {
+    this.showCreateUserPopup = false;
+  }
 }

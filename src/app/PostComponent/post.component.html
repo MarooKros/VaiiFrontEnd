@@ -2,31 +2,52 @@
   <h1>Recenzie</h1>
 </div>
 
-<button routerLink="/">Go to Main Page</button>
+<div class="top-right-buttons">
+  <button class="common-button" (click)="openLoginPopup()">Login</button>
+  <button class="common-button" (click)="openCreateUserPopup()">Register</button>
+</div>
 
-<!-- Create Post Box -->
+<app-current-user></app-current-user>
+
+<button routerLink="/" class="common-button">Go to Main Page</button>
+
 <div class="create-post-box">
   <input type="text" placeholder="Title" [(ngModel)]="newPost.title" />
   <textarea placeholder="Write your post..." [(ngModel)]="newPost.text"></textarea>
-  <button (click)="createPost()">Post</button>
+  <button (click)="createOrUpdatePost()" class="post-button">{{ isEditing ? 'Save Changes' : 'Post' }}</button>
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 </div>
 
-<!-- Post Boxes -->
 <div class="content-box">
   <div class="post-box" *ngFor="let post of posts">
     <div class="post-header">
       <h3>{{ post.title }}</h3>
-      <span>by {{ post.user.name || 'Unknown' }}</span>
+      <span>by {{ post.user?.name || 'Unknown' }}</span>
     </div>
     <p>{{ post.text }}</p>
 
-    <!-- Comments Section -->
-    <select>
-      <option value="" disabled selected>Comments</option>
-      <option *ngFor="let comment of post.comments">
-        {{ comment.text }} - {{ comment.User.name || 'Anonymous' }}
-      </option>
-    </select>
+    <div class="comments-section">
+      <div *ngFor="let comment of post.comments" (click)="selectComment(comment.id)" [class.selected]="comment.id === selectedCommentId">
+        <strong>{{ comment.user?.name || 'Anonymous' }}:</strong> {{ comment.text }}
+        <button *ngIf="comment.userId === getCurrentUserId()" (click)="deleteComment(comment.id)" class="delete-button post-button">Delete</button>
+      </div>
+      <textarea class="comment-textarea" placeholder="Write a comment..." [(ngModel)]="newComment.text"></textarea>
+      <button class="add-comment-button post-button" (click)="addComment(post.id)">Add Comment</button>
+    </div>
+
+    <div class="button-group">
+      <button (click)="editPost(post)" class="common-button post-button">Edit</button>
+      <button (click)="deletePost(post.id)" class="delete-button post-button">Delete</button>
+    </div>
   </div>
+</div>
+
+<div *ngIf="showCreateUserPopup" class="popup">
+  <app-user-create (userCreated)="closeCreateUserPopup()" (closePopup)="closeCreateUserPopup()"></app-user-create>
+  <button (click)="closeCreateUserPopup()" class="close-button white-button">Close</button>
+</div>
+
+<div *ngIf="showLoginPopup" class="popup">
+  <app-login (loginSuccess)="closeLoginPopup()"></app-login>
+  <button (click)="closeLoginPopup()" class="close-button white-button">Close</button>
 </div>
