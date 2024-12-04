@@ -21,16 +21,24 @@ export class PostService {
       switchMap(posts => {
         const userRequests = posts.map(post => this.userService.getUserById(post.userId));
         return forkJoin(userRequests).pipe(
-          map(users => {
-            posts.forEach((post, index) => {
-              post.user = users[index];
-              if (post.comments) {
-                post.comments.forEach(comment => {
-                  comment.user = users.find(user => user.id === comment.userId) || { id: 0, name: 'Anonymous', password: '' };
+          switchMap(users => {
+            const commentUserRequests = posts.flatMap(post =>
+              (post.comments || []).map(comment => this.userService.getUserById(comment.userId))
+            );
+            return forkJoin(commentUserRequests).pipe(
+              map(commentUsers => {
+                let commentUserIndex = 0;
+                posts.forEach((post, index) => {
+                  post.user = users[index];
+                  if (post.comments) {
+                    post.comments.forEach(comment => {
+                      comment.user = commentUsers[commentUserIndex++] || { id: 0, name: 'Anonymous', password: '' };
+                    });
+                  }
                 });
-              }
-            });
-            return posts;
+                return posts;
+              })
+            );
           })
         );
       })
@@ -64,7 +72,12 @@ export class PostService {
 
   addCommentToPost(postId: number, comment: CommentModel): Observable<void> {
     const params = new HttpParams().set('postId', postId.toString());
-    return this.http.post<void>(`${this.apiUrl}/addCommentToPost`, comment, { params });
+    return this.userService.getUserById(comment.userId).pipe(
+      switchMap(user => {
+        comment.user = user;
+        return this.http.post<void>(`${this.apiUrl}/addCommentToPost`, comment, { params });
+      })
+    );
   }
 
   deletePost(id: number): Observable<void> {
