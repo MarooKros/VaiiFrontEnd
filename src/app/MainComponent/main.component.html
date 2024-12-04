@@ -1,24 +1,29 @@
 <div class="index-container">
   <div class="top-right-buttons">
-    <button (click)="openLoginPopup()">Login</button>
+    <button class="common-button" (click)="openLoginPopup()">Login</button>
+
     <button class="white-button" (click)="openCreateUserPopup()">Register</button>
   </div>
+
   <app-current-user></app-current-user>
 
   <h1>Welcome to the Main Page</h1>
 
-  <button routerLink="/post">Go to Post</button>
-  <button routerLink="/user">Go to User</button>
+  <button routerLink="/post" class="common-button">Go to Post</button>
+
+  <button routerLink="/user" class="common-button">Go to User</button>
 
   <h2 class="centered-header">Aplikácia ešte nie je hotová</h2>
 
   <div *ngIf="showCreateUserPopup" class="popup">
     <app-user-create (userCreated)="closeCreateUserPopup()" (closePopup)="closeCreateUserPopup()"></app-user-create>
+
     <button (click)="closeCreateUserPopup()" class="close-button">Close</button>
   </div>
 
   <div *ngIf="showLoginPopup" class="popup">
     <app-login (loginSuccess)="closeLoginPopup()"></app-login>
+
     <button (click)="closeLoginPopup()" class="close-button">Close</button>
   </div>
 </div>

@@ -1,32 +1,84 @@
 <div class="user-box">
   <div class="top-right-buttons">
-    <button (click)="openLoginPopup()">Login</button>
+    <button class="common-button" (click)="openLoginPopup()">Login</button>
+
     <button class="white-button" (click)="openCreateUserPopup()">Register</button>
   </div>
+
   <app-current-user></app-current-user>
+
   <div class="header-container">
-    <button routerLink="/">Go to Main Page</button>
+    <button routerLink="/" class="common-button">Go to Main Page</button>
+
     <h1>Správa Užívateľov</h1>
   </div>
   <div *ngIf="users.length > 0; else noUsers" class="user-container">
     <ul>
       <li *ngFor="let user of users" class="user-item" (click)="selectUser(user)" [class.selected]="user.id === selectedUserId">
-        {{user.id}} - {{ user.name }} - {{ user.password }}
+         {{user.id}} - {{ user.name }} - {{ user.password }}
       </li>
     </ul>
   </div>
+
   <ng-template #noUsers>
     <p>No users found.</p>
   </ng-template>
-  <button [disabled]="selectedUserId === null" (click)="deleteUser()" [class.active]="selectedUserId !== null">Delete User</button>
+
+  <div class="button-group">
+    <button
+      [disabled]="selectedUserId === null"
+      (click)="deleteUser()"
+      [class.active]="selectedUserId !== null"
+      class="delete-button">
+      Delete User
+    </button>
+
+    <button
+      [disabled]="selectedUserId === null"
+      (click)="openEditNamePopup()"
+      class="common-button">
+      Edit Name
+    </button>
+
+    <button
+      [disabled]="selectedUserId === null"
+      (click)="openEditPasswordPopup()"
+      class="common-button">
+      Edit Password
+    </button>
+  </div>
 
   <div *ngIf="showCreateUserPopup" class="popup">
-    <app-user-create (userCreated)="closeCreateUserPopup()" (closePopup)="closeCreateUserPopup()"></app-user-create>
+    <app-user-create (userCreated)="onUserCreated()" (closePopup)="closeCreateUserPopup()"></app-user-create>
+
     <button (click)="closeCreateUserPopup()" class="close-button">Close</button>
   </div>
 
   <div *ngIf="showLoginPopup" class="popup">
     <app-login (loginSuccess)="closeLoginPopup()"></app-login>
+
     <button (click)="closeLoginPopup()" class="close-button">Close</button>
+  </div>
+
+  <div *ngIf="showEditNamePopup" class="popup">
+    <h3>Edit Name</h3>
+
+    <input type="text" [(ngModel)]="editName" placeholder="New Name" />
+
+    <button class="common-button" (click)="saveName()">Save</button>
+
+    <button (click)="closeEditNamePopup()" class="close-button">Close</button>
+  </div>
+
+  <div *ngIf="showEditPasswordPopup" class="popup">
+    <h3>Edit Password</h3>
+
+    <input type="password" [(ngModel)]="editPassword" placeholder="New Password" />
+
+    <input type="password" [(ngModel)]="confirmPassword" placeholder="Confirm Password" />
+
+    <button class="common-button" (click)="savePassword()">Save</button>
+
+    <button (click)="closeEditPasswordPopup()" class="close-button">Close</button>
   </div>
 </div>
