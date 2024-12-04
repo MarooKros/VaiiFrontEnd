@@ -7,6 +7,7 @@ import { routes } from './app.routes';
 import { PostService } from './Services/post.service';
 import { UserService } from './Services/user.service';
 import { AuthService } from './Services/auth.service';
+import { IssueService } from './Services/issue.service';
 
 @NgModule({
   imports: [
@@ -16,7 +17,8 @@ import { AuthService } from './Services/auth.service';
   providers: [
     PostService,
     UserService,
-    AuthService
+    AuthService,
+    IssueService
   ],
 })
 export class AppModule {}

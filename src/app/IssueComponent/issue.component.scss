@@ -1,0 +1,138 @@
+.top-right-buttons {
+  position: absolute;
+  top: 30px;
+  right: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.issue-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
+}
+
+.header-container h1 {
+  margin: 0 auto;
+}
+
+.issue-container {
+  border: 1px solid #ccc;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  width: 50%;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+.issue-item {
+  border-bottom: 1px solid #ddd;
+  padding: 10px 0;
+  cursor: pointer;
+}
+
+.issue-item:last-child {
+  border-bottom: none;
+}
+
+.issue-item.selected {
+  background-color: #e0e0e0;
+}
+
+.issue-header {
+  font-weight: bold;
+}
+
+.issue-description {
+  margin-top: 5px;
+}
+
+.issue-date {
+  margin-top: 5px;
+  font-size: 0.9em;
+  color: #666;
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: grey;
+  cursor: not-allowed;
+}
+
+button.active {
+  background-color: red;
+  color: white;
+}
+
+.common-button {
+  background-color: #007bff;
+  color: white;
+  border: 1px solid #0056b3;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.common-button:hover {
+  background-color: #0056b3;
+}
+
+.delete-button {
+  background-color: red;
+  color: white;
+  border: 1px solid darkred;
+  padding: 10px 20px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.delete-button:hover {
+  background-color: darkred;
+}
+
+.popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.popup button {
+  margin-top: 10px;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.error {
+  color: red;
+}

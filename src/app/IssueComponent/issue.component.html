@@ -1,0 +1,85 @@
+<div class="issue-box">
+  <div class="header-container">
+    <button routerLink="/" class="common-button">Go to Main Page</button>
+
+    <h1>Issue Management</h1>
+  </div>
+
+  <div *ngIf="issues.length > 0; else noIssues" class="issue-container">
+    <ul>
+      <li
+        *ngFor="let issue of issues"
+        class="issue-item"
+        (click)="selectIssue(issue)"
+        [class.selected]="issue.id === selectedIssueId">
+
+        <div class="issue-header">
+          <span>{{ issue.title }}</span> | <span>{{ issue.priority }}</span> | <span>{{ issue.type }}</span>
+        </div>
+
+        <div class="issue-description">
+          {{ issue.description }}
+        </div>
+
+        <div class="issue-date">
+          Created on: {{ issue.created | date:'short' }}
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <ng-template #noIssues>
+    <p>No issues found.</p>
+  </ng-template>
+
+  <div class="button-group">
+    <button
+      [disabled]="selectedIssueId === null"
+      (click)="deleteIssue()"
+      [class.active]="selectedIssueId !== null"
+      class="delete-button">
+      Delete Issue
+    </button>
+
+    <button
+      [disabled]="selectedIssueId === null"
+      (click)="openEditIssuePopup()"
+      class="common-button">
+      Edit Issue
+    </button>
+
+    <button class="common-button" (click)="openCreateIssuePopup()">Create Issue</button>
+  </div>
+
+  <div *ngIf="showCreateIssuePopup" class="popup">
+    <h3>Create Issue</h3>
+
+    <input type="text" [(ngModel)]="newIssue.title" placeholder="Title" required />
+
+    <input type="text" [(ngModel)]="newIssue.description" placeholder="Description" required />
+
+    <select [(ngModel)]="newIssue.priority">
+      <option *ngFor="let priority of [Priority.Low, Priority.Medium, Priority.High]" [value]="priority">{{priority}}</option>
+    </select>
+
+    <select [(ngModel)]="newIssue.type">
+      <option *ngFor="let type of [IssueType.Feature, IssueType.Bug, IssueType.Documentation]" [value]="type">{{type}}</option>
+    </select>
+
+    <button class="common-button" (click)="createIssue()">Create</button>
+
+    <button (click)="closeCreateIssuePopup()" class="close-button">Close</button>
+  </div>
+
+  <div *ngIf="showEditIssuePopup" class="popup">
+    <h3>Edit Issue</h3>
+
+    <input type="text" [(ngModel)]="editTitle" placeholder="New Title" />
+
+    <input type="text" [(ngModel)]="editDescription" placeholder="New Description" />
+
+    <button class="common-button" (click)="saveIssue()">Save</button>
+
+    <button (click)="closeEditIssuePopup()" class="close-button">Close</button>
+  </div>
+</div>

@@ -1,11 +1,12 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { UserService } from '../Services/user.service';
-import { AuthService } from '../Services/auth.service';
-import { UserModel } from '../Models/UserModel';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+
+import { UserService } from '../Services/user.service';
+import { AuthService } from '../Services/auth.service';
+import { UserModel } from '../Models/UserModel';
 
 @Component({
   selector: 'app-login',
