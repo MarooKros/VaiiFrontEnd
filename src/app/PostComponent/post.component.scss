@@ -1,3 +1,5 @@
+/* filepath: /c:/Users/Maroo/VaiiFE/VaiiFrontEnd/src/app/PostComponent/post.component.scss */
+
 .header {
   text-align: center;
   margin-bottom: 20px;
@@ -209,4 +211,11 @@
 
 .post-button {
   width: 100px;
+}
+
+.post-image, .comment-image {
+  max-width: 100%;
+  height: auto;
+  margin-top: 10px;
+  border-radius: 4px;
 }

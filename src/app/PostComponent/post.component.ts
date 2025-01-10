@@ -12,6 +12,7 @@ import { LogginService } from '../Services/loggin.service';
 import { UserCreateComponent } from '../UserCreateComponent/userCreate.component';
 import { CurrentUserComponent } from '../CurrentUserComponent/currentUser.component';
 import { LoginComponent } from '../LogginComponent/login.component';
+import { PictureModel } from '../Models/PictureModel';
 
 @Component({
   selector: 'app-post',
@@ -45,6 +46,8 @@ export class PostComponent implements OnInit {
   showLoginPopup: boolean = false;
   isEditing: boolean = false;
   currentUserId: number | null = null;
+  postImage: PictureModel | null = null;
+  commentImage: PictureModel | null = null;
 
   constructor(private postService: PostService, private logginService: LogginService) {}
 
@@ -66,17 +69,6 @@ export class PostComponent implements OnInit {
     );
   }
 
-  loadPostsAfterEdit(): void {
-    this.loadPosts();
-    this.postService.getPostAfterEdit().subscribe(
-      (data) => {
-        this.posts = data;
-      },
-      (error) => {
-        console.error('Error loading posts:', error);
-      });
-    }
-
   createOrUpdatePost(): void {
     if (!this.newPost.title || !this.newPost.text) {
       this.errorMessage = 'Title and content are required!';
@@ -93,7 +85,7 @@ export class PostComponent implements OnInit {
         if (this.isEditing) {
           this.postService.updatePost(this.newPost.id, this.newPost).subscribe(
             () => {
-              this.loadPostsAfterEdit();
+              this.loadPosts();
               this.resetForm();
             },
             (error) => {
@@ -127,6 +119,7 @@ export class PostComponent implements OnInit {
   resetForm(): void {
     this.newPost = { id: 0, userId: 1, user: { id: 1, name: 'Default User', password: '' }, title: '', text: '', comments: [] };
     this.isEditing = false;
+    this.postImage = null;
   }
 
   addComment(postId: number): void {
@@ -145,7 +138,7 @@ export class PostComponent implements OnInit {
         this.postService.addCommentToPost(postId, this.newComment).subscribe(
           () => {
             this.newComment = { id: 0, postId: 0, userId: currentUser.id, user: currentUser, text: '' };
-            this.loadPostsAfterEdit();
+            this.loadPosts();
           },
           (error) => {
             console.error('Error adding comment:', error);
@@ -164,7 +157,7 @@ export class PostComponent implements OnInit {
         if (post.userId === currentUser?.id) {
           this.postService.deletePost(postId).subscribe(() => {
             console.log('Post deleted successfully');
-            this.loadPostsAfterEdit();
+            this.loadPosts();
           }, error => {
             console.error('Error deleting post', error);
           });
@@ -188,7 +181,7 @@ export class PostComponent implements OnInit {
         if (comment && comment.userId === currentUser?.id) {
           this.postService.deleteComment(commentId).subscribe(() => {
             console.log('Comment deleted successfully');
-            this.loadPostsAfterEdit();
+            this.loadPosts();
           }, error => {
             console.error('Error deleting comment', error);
           });
@@ -227,6 +220,10 @@ export class PostComponent implements OnInit {
 
   closeCreateUserPopup() {
     this.showCreateUserPopup = false;
+
+    if (this.currentUserComponent) {
+      this.currentUserComponent.ngOnInit();
+    }
   }
 
   onUserCreatedAndLoggedIn() {
@@ -234,5 +231,38 @@ export class PostComponent implements OnInit {
       this.currentUserComponent.ngOnInit();
     }
     this.closeCreateUserPopup();
+  }
+
+  onPostImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.postImage = { id: 0, img: Array.from(new Uint8Array(reader.result as ArrayBuffer)), userId: this.currentUserId! };
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  }
+
+  onCommentImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.commentImage = { id: 0, img: Array.from(new Uint8Array(reader.result as ArrayBuffer)), userId: this.currentUserId! };
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  }
+
+  byteArrayToBase64(byteArray: number[]): string {
+    let binary = '';
+    const len = byteArray.length;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(byteArray[i]);
+    }
+    return window.btoa(binary);
   }
 }
