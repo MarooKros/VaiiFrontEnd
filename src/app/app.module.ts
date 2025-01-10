@@ -1,24 +1,25 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 import { routes } from './app.routes';
 import { PostService } from './Services/post.service';
 import { UserService } from './Services/user.service';
-import { AuthService } from './Services/auth.service';
 import { IssueService } from './Services/issue.service';
+import { LogginService } from './Services/loggin.service';
 
 @NgModule({
   imports: [
     BrowserModule,
-    RouterModule.forRoot(routes),
-    HttpClientModule],
+    RouterModule.forRoot(routes)
+  ],
   providers: [
+    provideHttpClient(withInterceptorsFromDi()),
     PostService,
     UserService,
-    AuthService,
-    IssueService
+    IssueService,
+    LogginService
   ],
 })
 export class AppModule {}
