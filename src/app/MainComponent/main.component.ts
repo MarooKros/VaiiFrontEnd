@@ -1,11 +1,11 @@
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 import { UserCreateComponent } from '../UserCreateComponent/userCreate.component';
 import { CurrentUserComponent } from '../CurrentUserComponent/currentUser.component';
 import { LoginComponent } from '../LogginComponent/login.component';
-import { AuthService } from '../Services/auth.service';
+import { LogginService } from '../Services/loggin.service';
 
 @Component({
   selector: 'app-main',
@@ -17,11 +17,13 @@ import { AuthService } from '../Services/auth.service';
     CurrentUserComponent,
     LoginComponent
   ],
-  providers: [AuthService],
+  providers: [LogginService],
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.scss']
 })
 export class MainComponent {
+  @ViewChild(CurrentUserComponent) currentUserComponent!: CurrentUserComponent;
+
   showCreateUserPopup: boolean = false;
   showLoginPopup: boolean = false;
 
@@ -41,5 +43,19 @@ export class MainComponent {
 
   closeCreateUserPopup() {
     this.showCreateUserPopup = false;
+  }
+
+  onLoginSuccess() {
+    if (this.currentUserComponent) {
+      this.currentUserComponent.ngOnInit();
+    }
+    this.closeLoginPopup();
+  }
+
+  onUserCreatedAndLoggedIn() {
+    if (this.currentUserComponent) {
+      this.currentUserComponent.ngOnInit();
+    }
+    this.closeCreateUserPopup();
   }
 }

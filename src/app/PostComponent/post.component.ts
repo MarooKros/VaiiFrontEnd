@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -8,10 +8,10 @@ import { PostModel } from '../Models/PostModel';
 import { CommentModel } from '../Models/CommentModel';
 import { PostService } from '../Services/post.service';
 import { UserService } from '../Services/user.service';
+import { LogginService } from '../Services/loggin.service';
 import { UserCreateComponent } from '../UserCreateComponent/userCreate.component';
 import { CurrentUserComponent } from '../CurrentUserComponent/currentUser.component';
 import { LoginComponent } from '../LogginComponent/login.component';
-import { AuthService } from '../Services/auth.service';
 
 @Component({
   selector: 'app-post',
@@ -27,13 +27,15 @@ import { AuthService } from '../Services/auth.service';
   ],
   providers: [
     PostService,
-    AuthService,
-    UserService
+    UserService,
+    LogginService
   ],
   templateUrl: './post.component.html',
   styleUrls: ['./post.component.scss']
 })
 export class PostComponent implements OnInit {
+  @ViewChild(CurrentUserComponent) currentUserComponent!: CurrentUserComponent;
+
   posts: PostModel[] = [];
   newPost: PostModel = { id: 0, userId: 1, user: { id: 1, name: 'Default User', password: '' }, title: '', text: '', comments: [] };
   newComment: CommentModel = { id: 0, postId: 0, userId: 1, user: { id: 1, name: 'Default User', password: '' }, text: '' };
@@ -42,11 +44,15 @@ export class PostComponent implements OnInit {
   showCreateUserPopup: boolean = false;
   showLoginPopup: boolean = false;
   isEditing: boolean = false;
+  currentUserId: number | null = null;
 
-  constructor(private postService: PostService, private authService: AuthService) {}
+  constructor(private postService: PostService, private logginService: LogginService) {}
 
   ngOnInit(): void {
     this.loadPosts();
+    this.logginService.getLoggedInUser().subscribe(user => {
+      this.currentUserId = user?.id || null;
+    });
   }
 
   loadPosts(): void {
@@ -78,38 +84,39 @@ export class PostComponent implements OnInit {
     }
     this.errorMessage = null;
 
-    const currentUser = this.authService.getUser();
-    if (currentUser) {
-      this.newPost.user = currentUser;
-      this.newPost.userId = currentUser.id;
-      this.newPost.comments = [];
+    this.logginService.getLoggedInUser().subscribe(currentUser => {
+      if (currentUser) {
+        this.newPost.user = currentUser;
+        this.newPost.userId = currentUser.id;
+        this.newPost.comments = [];
 
-      if (this.isEditing) {
-        this.postService.updatePost(this.newPost.id, this.newPost).subscribe(
-          () => {
-            this.loadPostsAfterEdit();
-            this.resetForm();
-          },
-          (error) => {
-            console.error('Error updating post:', error);
-            this.errorMessage = 'Could not update the post. Please try again later.';
-          }
-        );
+        if (this.isEditing) {
+          this.postService.updatePost(this.newPost.id, this.newPost).subscribe(
+            () => {
+              this.loadPostsAfterEdit();
+              this.resetForm();
+            },
+            (error) => {
+              console.error('Error updating post:', error);
+              this.errorMessage = 'Could not update the post. Please try again later.';
+            }
+          );
+        } else {
+          this.postService.createPost(this.newPost).subscribe(
+            (createdPost) => {
+              this.posts.unshift(createdPost);
+              this.resetForm();
+            },
+            (error) => {
+              console.error('Error creating post:', error);
+              this.errorMessage = 'Could not create the post. Please try again later.';
+            }
+          );
+        }
       } else {
-        this.postService.createPost(this.newPost).subscribe(
-          (createdPost) => {
-            this.posts.unshift(createdPost);
-            this.resetForm();
-          },
-          (error) => {
-            console.error('Error creating post:', error);
-            this.errorMessage = 'Could not create the post. Please try again later.';
-          }
-        );
+        this.errorMessage = 'User not logged in.';
       }
-    } else {
-      this.errorMessage = 'User not logged in.';
-    }
+    });
   }
 
   editPost(post: PostModel): void {
@@ -129,42 +136,44 @@ export class PostComponent implements OnInit {
     }
     this.errorMessage = null;
 
-    const currentUser = this.authService.getUser();
-    if (currentUser) {
-      this.newComment.user = currentUser;
-      this.newComment.userId = currentUser.id;
-      this.newComment.postId = postId;
+    this.logginService.getLoggedInUser().subscribe(currentUser => {
+      if (currentUser) {
+        this.newComment.user = currentUser;
+        this.newComment.userId = currentUser.id;
+        this.newComment.postId = postId;
 
-      this.postService.addCommentToPost(postId, this.newComment).subscribe(
-        () => {
-          this.newComment = { id: 0, postId: 0, userId: currentUser.id, user: currentUser, text: '' };
-          this.loadPostsAfterEdit();
-        },
-        (error) => {
-          console.error('Error adding comment:', error);
-          this.errorMessage = 'Could not add the comment. Please try again later.';
-        }
-      );
-    } else {
-      this.errorMessage = 'User not logged in.';
-    }
+        this.postService.addCommentToPost(postId, this.newComment).subscribe(
+          () => {
+            this.newComment = { id: 0, postId: 0, userId: currentUser.id, user: currentUser, text: '' };
+            this.loadPostsAfterEdit();
+          },
+          (error) => {
+            console.error('Error adding comment:', error);
+            this.errorMessage = 'Could not add the comment. Please try again later.';
+          }
+        );
+      } else {
+        this.errorMessage = 'User not logged in.';
+      }
+    });
   }
 
   deletePost(postId: number): void {
-    const currentUser = this.authService.getUser();
-    this.postService.getPostById(postId).subscribe(post => {
-      if (post.userId === currentUser?.id) {
-        this.postService.deletePost(postId).subscribe(() => {
-          console.log('Post deleted successfully');
-          this.loadPostsAfterEdit();
-        }, error => {
-          console.error('Error deleting post', error);
-        });
-      } else {
-        console.error('User is not authorized to delete this post');
-      }
-    }, error => {
-      console.error('Error fetching post', error);
+    this.logginService.getLoggedInUser().subscribe(currentUser => {
+      this.postService.getPostById(postId).subscribe(post => {
+        if (post.userId === currentUser?.id) {
+          this.postService.deletePost(postId).subscribe(() => {
+            console.log('Post deleted successfully');
+            this.loadPostsAfterEdit();
+          }, error => {
+            console.error('Error deleting post', error);
+          });
+        } else {
+          console.error('User is not authorized to delete this post');
+        }
+      }, error => {
+        console.error('Error fetching post', error);
+      });
     });
   }
 
@@ -173,28 +182,29 @@ export class PostComponent implements OnInit {
   }
 
   deleteComment(commentId: number): void {
-    const currentUser = this.authService.getUser();
-    this.postService.getPosts().subscribe(posts => {
-      const comment = posts.flatMap(post => post.comments || []).find(comment => comment.id === commentId);
-      if (comment && comment.userId === currentUser?.id) {
-        this.postService.deleteComment(commentId).subscribe(() => {
-          console.log('Comment deleted successfully');
-          this.loadPostsAfterEdit();
-        }, error => {
-          console.error('Error deleting comment', error);
-        });
-      } else {
-        console.error('User is not authorized to delete this comment');
+    this.logginService.getLoggedInUser().subscribe(currentUser => {
+      this.postService.getPosts().subscribe(posts => {
+        const comment = posts.flatMap(post => post.comments || []).find(comment => comment.id === commentId);
+        if (comment && comment.userId === currentUser?.id) {
+          this.postService.deleteComment(commentId).subscribe(() => {
+            console.log('Comment deleted successfully');
+            this.loadPostsAfterEdit();
+          }, error => {
+            console.error('Error deleting comment', error);
+          });
+        } else {
+          console.error('User is not authorized to delete this comment');
+          this.resetForm();
+        }
+      }, error => {
+        console.error('Error fetching posts', error);
         this.resetForm();
-      }
-    }, error => {
-      console.error('Error fetching posts', error);
-      this.resetForm();
+      });
     });
   }
 
   getCurrentUserId(): number | null {
-    return this.authService.getUser()?.id || null;
+    return this.currentUserId;
   }
 
   openLoginPopup() {
@@ -209,9 +219,20 @@ export class PostComponent implements OnInit {
 
   closeLoginPopup() {
     this.showLoginPopup = false;
+
+    if (this.currentUserComponent) {
+      this.currentUserComponent.ngOnInit();
+    }
   }
 
   closeCreateUserPopup() {
     this.showCreateUserPopup = false;
+  }
+
+  onUserCreatedAndLoggedIn() {
+    if (this.currentUserComponent) {
+      this.currentUserComponent.ngOnInit();
+    }
+    this.closeCreateUserPopup();
   }
 }

@@ -1,7 +1,6 @@
 <div class="index-container">
   <div class="top-right-buttons">
     <button class="common-button" (click)="openLoginPopup()">Login</button>
-
     <button class="white-button" (click)="openCreateUserPopup()">Register</button>
   </div>
 
@@ -10,22 +9,18 @@
   <h1>Welcome to the Main Page</h1>
 
   <button routerLink="/post" class="common-button">Go to Post</button>
-
   <button routerLink="/user" class="common-button">Go to User</button>
-
   <button routerLink="/issue" class="common-button">Go to Issues</button>
 
   <h2 class="centered-header">Aplikácia ešte nie je hotová</h2>
 
   <div *ngIf="showCreateUserPopup" class="popup">
-    <app-user-create (userCreated)="closeCreateUserPopup()" (closePopup)="closeCreateUserPopup()"></app-user-create>
-
+    <app-user-create (userCreated)="closeCreateUserPopup()" (closePopup)="closeCreateUserPopup()" (userCreatedAndLoggedIn)="onUserCreatedAndLoggedIn()"></app-user-create>
     <button (click)="closeCreateUserPopup()" class="close-button">Close</button>
   </div>
 
   <div *ngIf="showLoginPopup" class="popup">
-    <app-login (loginSuccess)="closeLoginPopup()"></app-login>
-
+    <app-login (loginSuccess)="onLoginSuccess()"></app-login>
     <button (click)="closeLoginPopup()" class="close-button">Close</button>
   </div>
 </div>

@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { AuthService } from '../Services/auth.service';
+import { LogginService } from '../Services/loggin.service';
 import { UserService } from '../Services/user.service';
 import { UserModel } from '../Models/UserModel';
 
@@ -12,13 +12,14 @@ import { UserModel } from '../Models/UserModel';
   selector: 'app-user-create',
   standalone: true,
   imports: [RouterModule, CommonModule, HttpClientModule, FormsModule],
-  providers: [UserService, AuthService],
+  providers: [UserService, LogginService],
   templateUrl: './userCreate.component.html',
   styleUrls: ['./userCreate.component.scss']
 })
 export class UserCreateComponent {
   @Output() userCreated = new EventEmitter<void>();
   @Output() closePopup = new EventEmitter<void>();
+  @Output() userCreatedAndLoggedIn = new EventEmitter<void>();
 
   user: UserModel = { id: 0, name: '', password: '' };
   password: string = '';
@@ -28,7 +29,7 @@ export class UserCreateComponent {
   passwordValid: boolean = true;
   passwordErrorMessage: string = '';
 
-  constructor(private userService: UserService, private authService: AuthService) {}
+  constructor(private userService: UserService, private logginService: LogginService) {}
 
   closePop() {
     this.closePopup.emit();
@@ -66,8 +67,16 @@ export class UserCreateComponent {
       this.userService.createUser(this.user).subscribe(
         response => {
           console.log('User created:', response);
-          this.authService.setUser(this.user);
-          this.userCreated.emit();
+          this.logginService.logInUser(this.user).subscribe(
+            () => {
+              this.userCreated.emit();
+              this.closePopup.emit();
+              this.userCreatedAndLoggedIn.emit();
+            },
+            error => {
+              console.error('Error logging in user:', error);
+            }
+          );
         },
         (error: HttpErrorResponse) => {
           if (error.status === 400) {

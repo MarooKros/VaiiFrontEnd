@@ -1,7 +1,6 @@
 <div class="user-box">
   <div class="top-right-buttons">
     <button class="common-button" (click)="openLoginPopup()">Login</button>
-
     <button class="white-button" (click)="openCreateUserPopup()">Register</button>
   </div>
 
@@ -9,7 +8,6 @@
 
   <div class="header-container">
     <button routerLink="/" class="common-button">Go to Main Page</button>
-
     <h1>Správa Užívateľov</h1>
   </div>
   <div *ngIf="users.length > 0; else noUsers" class="user-container">
@@ -49,36 +47,27 @@
   </div>
 
   <div *ngIf="showCreateUserPopup" class="popup">
-    <app-user-create (userCreated)="onUserCreated()" (closePopup)="closeCreateUserPopup()"></app-user-create>
-
+    <app-user-create (userCreated)="onUserCreated()" (closePopup)="closeCreateUserPopup()" (userCreatedAndLoggedIn)="onUserCreatedAndLoggedIn()"></app-user-create>
     <button (click)="closeCreateUserPopup()" class="close-button">Close</button>
   </div>
 
   <div *ngIf="showLoginPopup" class="popup">
-    <app-login (loginSuccess)="closeLoginPopup()"></app-login>
-
+    <app-login (loginSuccess)="onLoginSuccess()"></app-login>
     <button (click)="closeLoginPopup()" class="close-button">Close</button>
   </div>
 
   <div *ngIf="showEditNamePopup" class="popup">
     <h3>Edit Name</h3>
-
     <input type="text" [(ngModel)]="editName" placeholder="New Name" />
-
     <button class="common-button" (click)="saveName()">Save</button>
-
     <button (click)="closeEditNamePopup()" class="close-button">Close</button>
   </div>
 
   <div *ngIf="showEditPasswordPopup" class="popup">
     <h3>Edit Password</h3>
-
     <input type="password" [(ngModel)]="editPassword" placeholder="New Password" />
-
     <input type="password" [(ngModel)]="confirmPassword" placeholder="Confirm Password" />
-
     <button class="common-button" (click)="savePassword()">Save</button>
-
     <button (click)="closeEditPasswordPopup()" class="close-button">Close</button>
   </div>
 </div>

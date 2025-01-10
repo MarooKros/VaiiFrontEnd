@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
@@ -7,7 +7,6 @@ import { FormsModule } from '@angular/forms';
 import { CurrentUserComponent } from '../CurrentUserComponent/currentUser.component';
 import { LoginComponent } from '../LogginComponent/login.component';
 import { UserCreateComponent } from '../UserCreateComponent/userCreate.component';
-import { AuthService } from '../Services/auth.service';
 import { UserModel } from '../Models/UserModel';
 import { UserService } from '../Services/user.service';
 
@@ -23,11 +22,13 @@ import { UserService } from '../Services/user.service';
     CurrentUserComponent,
     LoginComponent
   ],
-  providers: [UserService, AuthService],
+  providers: [UserService],
   templateUrl: './user.component.html',
   styleUrls: ['./user.component.scss']
 })
 export class UserComponent implements OnInit {
+  @ViewChild(CurrentUserComponent) currentUserComponent!: CurrentUserComponent;
+
   users: UserModel[] = [];
   selectedUserId: number | null = null;
   showCreateUserPopup: boolean = false;
@@ -99,6 +100,13 @@ export class UserComponent implements OnInit {
     this.closeCreateUserPopup();
   }
 
+  onUserCreatedAndLoggedIn(): void {
+    if (this.currentUserComponent) {
+      this.currentUserComponent.ngOnInit();
+    }
+    this.closeCreateUserPopup();
+  }
+
   openLoginPopup() {
     this.showLoginPopup = true;
     this.showCreateUserPopup = false;
@@ -141,5 +149,12 @@ export class UserComponent implements OnInit {
       this.showEditPasswordPopup = true;
       this.showEditNamePopup = false;
     }
+  }
+
+  onLoginSuccess() {
+    if (this.currentUserComponent) {
+      this.currentUserComponent.ngOnInit();
+    }
+    this.closeLoginPopup();
   }
 }
