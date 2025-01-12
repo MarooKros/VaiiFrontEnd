@@ -6,6 +6,7 @@ import { UserCreateComponent } from '../UserCreateComponent/userCreate.component
 import { CurrentUserComponent } from '../CurrentUserComponent/currentUser.component';
 import { LoginComponent } from '../LogginComponent/login.component';
 import { LogginService } from '../Services/loggin.service';
+import { PictureComponent } from '../PicturesComponent/picture.component';
 
 @Component({
   selector: 'app-main',
@@ -15,7 +16,8 @@ import { LogginService } from '../Services/loggin.service';
     CommonModule,
     UserCreateComponent,
     CurrentUserComponent,
-    LoginComponent
+    LoginComponent,
+    //PictureComponent
   ],
   providers: [LogginService],
   templateUrl: './main.component.html',

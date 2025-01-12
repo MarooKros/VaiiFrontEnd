@@ -14,6 +14,7 @@
 <div class="create-post-box">
   <input type="text" placeholder="Title" [(ngModel)]="newPost.title" />
   <textarea placeholder="Write your post..." [(ngModel)]="newPost.text"></textarea>
+  <input type="file" (change)="onPostImageSelected($event)" />
   <button (click)="createOrUpdatePost()" class="post-button">
     {{ isEditing ? 'Save Changes' : 'Post' }}
   </button>
@@ -29,12 +30,14 @@
       <span>by {{ post.user.name || 'Unknown' }}</span>
     </div>
     <p>{{ post.text }}</p>
+    <img *ngIf="postImage" [src]="postImage.img" alt="Post Image" class="post-image" />
     <div class="comments-section">
       <div *ngFor="let comment of post.comments" (click)="selectComment(comment.id)" [class.selected]="comment.id === selectedCommentId">
-        <strong>{{ comment.user.name || 'Anonymous' }}:</strong> {{ comment.text }}
+        <strong>{{ comment.user.name || 'Anonymous' }}:</strong> <span [innerHTML]="comment.text"></span>
         <button *ngIf="comment.userId === getCurrentUserId()" (click)="deleteComment(comment.id)" class="delete-button post-button">Delete</button>
       </div>
       <textarea class="comment-textarea" placeholder="Write a comment..." [(ngModel)]="newComment.text"></textarea>
+      <input type="file" (change)="onCommentImageSelected($event)" />
       <button class="add-comment-button post-button" (click)="addComment(post.id)">Add Comment</button>
     </div>
     <div class="button-group">

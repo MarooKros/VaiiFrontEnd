@@ -9,9 +9,12 @@ import { CommentModel } from '../Models/CommentModel';
 import { PostService } from '../Services/post.service';
 import { UserService } from '../Services/user.service';
 import { LogginService } from '../Services/loggin.service';
+
 import { UserCreateComponent } from '../UserCreateComponent/userCreate.component';
 import { CurrentUserComponent } from '../CurrentUserComponent/currentUser.component';
 import { LoginComponent } from '../LogginComponent/login.component';
+import { PictureModel } from '../Models/PictureModel';
+import { PictureService } from '../Services/picture.service';
 
 @Component({
   selector: 'app-post',
@@ -28,7 +31,8 @@ import { LoginComponent } from '../LogginComponent/login.component';
   providers: [
     PostService,
     UserService,
-    LogginService
+    LogginService,
+    PictureService
   ],
   templateUrl: './post.component.html',
   styleUrls: ['./post.component.scss']
@@ -45,8 +49,14 @@ export class PostComponent implements OnInit {
   showLoginPopup: boolean = false;
   isEditing: boolean = false;
   currentUserId: number | null = null;
+  postImage: PictureModel | null = null;
+  commentImage: PictureModel | null = null;
 
-  constructor(private postService: PostService, private logginService: LogginService) {}
+  constructor(
+    private postService: PostService,
+    private logginService: LogginService,
+    private pictureService: PictureService
+  ) {}
 
   ngOnInit(): void {
     this.loadPosts();
@@ -66,17 +76,6 @@ export class PostComponent implements OnInit {
     );
   }
 
-  loadPostsAfterEdit(): void {
-    this.loadPosts();
-    this.postService.getPostAfterEdit().subscribe(
-      (data) => {
-        this.posts = data;
-      },
-      (error) => {
-        console.error('Error loading posts:', error);
-      });
-    }
-
   createOrUpdatePost(): void {
     if (!this.newPost.title || !this.newPost.text) {
       this.errorMessage = 'Title and content are required!';
@@ -93,7 +92,7 @@ export class PostComponent implements OnInit {
         if (this.isEditing) {
           this.postService.updatePost(this.newPost.id, this.newPost).subscribe(
             () => {
-              this.loadPostsAfterEdit();
+              this.loadPosts();
               this.resetForm();
             },
             (error) => {
@@ -127,11 +126,12 @@ export class PostComponent implements OnInit {
   resetForm(): void {
     this.newPost = { id: 0, userId: 1, user: { id: 1, name: 'Default User', password: '' }, title: '', text: '', comments: [] };
     this.isEditing = false;
+    this.postImage = null;
   }
 
   addComment(postId: number): void {
-    if (!this.newComment.text) {
-      this.errorMessage = 'Comment text is required!';
+    if (!this.newComment.text && !this.commentImage) {
+      this.errorMessage = 'Comment text or image is required!';
       return;
     }
     this.errorMessage = null;
@@ -142,20 +142,39 @@ export class PostComponent implements OnInit {
         this.newComment.userId = currentUser.id;
         this.newComment.postId = postId;
 
-        this.postService.addCommentToPost(postId, this.newComment).subscribe(
-          () => {
-            this.newComment = { id: 0, postId: 0, userId: currentUser.id, user: currentUser, text: '' };
-            this.loadPostsAfterEdit();
-          },
-          (error) => {
-            console.error('Error adding comment:', error);
-            this.errorMessage = 'Could not add the comment. Please try again later.';
-          }
-        );
+        if (this.commentImage) {
+          this.commentImage.user = currentUser; // Ensure user information is included
+          this.pictureService.createPicture(this.commentImage).subscribe(
+            (createdPicture: PictureModel) => {
+              this.newComment.text += `<br><img src="${createdPicture.img}" alt="Comment Image" class="comment-image" />`;
+              this.saveComment(postId, currentUser);
+            },
+            (error) => {
+              console.error('Error saving picture:', error);
+              this.errorMessage = 'Could not save the picture. Please try again later.';
+            }
+          );
+        } else {
+          this.saveComment(postId, currentUser);
+        }
       } else {
         this.errorMessage = 'User not logged in.';
       }
     });
+  }
+
+  saveComment(postId: number, currentUser: any): void {
+    this.postService.addCommentToPost(postId, this.newComment).subscribe(
+      () => {
+        this.newComment = { id: 0, postId: 0, userId: currentUser.id, user: currentUser, text: '' };
+        this.commentImage = null;
+        this.loadPosts();
+      },
+      (error) => {
+        console.error('Error adding comment:', error);
+        this.errorMessage = 'Could not add the comment. Please try again later.';
+      }
+    );
   }
 
   deletePost(postId: number): void {
@@ -164,7 +183,7 @@ export class PostComponent implements OnInit {
         if (post.userId === currentUser?.id) {
           this.postService.deletePost(postId).subscribe(() => {
             console.log('Post deleted successfully');
-            this.loadPostsAfterEdit();
+            this.loadPosts();
           }, error => {
             console.error('Error deleting post', error);
           });
@@ -188,7 +207,7 @@ export class PostComponent implements OnInit {
         if (comment && comment.userId === currentUser?.id) {
           this.postService.deleteComment(commentId).subscribe(() => {
             console.log('Comment deleted successfully');
-            this.loadPostsAfterEdit();
+            this.loadPosts();
           }, error => {
             console.error('Error deleting comment', error);
           });
@@ -227,6 +246,10 @@ export class PostComponent implements OnInit {
 
   closeCreateUserPopup() {
     this.showCreateUserPopup = false;
+
+    if (this.currentUserComponent) {
+      this.currentUserComponent.ngOnInit();
+    }
   }
 
   onUserCreatedAndLoggedIn() {
@@ -234,5 +257,38 @@ export class PostComponent implements OnInit {
       this.currentUserComponent.ngOnInit();
     }
     this.closeCreateUserPopup();
+  }
+
+  onPostImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.postImage = { id: 0, img: reader.result as string, user: { id: this.currentUserId!, name: '', password: '' } };
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  onCommentImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.commentImage = { id: 0, img: reader.result as string, user: { id: this.currentUserId!, name: '', password: '' } };
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  byteArrayToBase64(byteArray: number[]): string {
+    let binary = '';
+    const len = byteArray.length;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(byteArray[i]);
+    }
+    return window.btoa(binary);
   }
 }

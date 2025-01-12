@@ -1,0 +1,37 @@
+<div class="header">
+  <h1>Search for User Pictures</h1>
+</div>
+
+<div class="top-right-buttons">
+  <button class="common-button" (click)="openLoginPopup()">Login</button>
+  <button class="white-button" (click)="openCreateUserPopup()">Register</button>
+</div>
+
+<app-current-user></app-current-user>
+
+<button routerLink="/" class="common-button">Go to Main Page</button>
+
+<div class="search-container">
+  <input type="text" placeholder="Enter username" [(ngModel)]="username" />
+  <button (click)="searchPicturesByUsername()" class="search-button common-button">Search</button>
+</div>
+
+<div *ngIf="pictures.length > 0; else noPictures" class="pictures-container">
+  <div *ngFor="let picture of pictures" class="picture-item">
+    <img [src]="'data:image/jpeg;base64,' + picture.img" alt="User Picture" />
+  </div>
+</div>
+
+<ng-template #noPictures>
+  <p>No pictures found.</p>
+</ng-template>
+
+<div *ngIf="showCreateUserPopup" class="popup">
+  <app-user-create (userCreated)="closeCreateUserPopup()" (closePopup)="closeCreateUserPopup()" (userCreatedAndLoggedIn)="onUserCreatedAndLoggedIn()"></app-user-create>
+  <button (click)="closeCreateUserPopup()" class="close-button white-button">Close</button>
+</div>
+
+<div *ngIf="showLoginPopup" class="popup">
+  <app-login (loginSuccess)="onLoginSuccess()"></app-login>
+  <button (click)="closeLoginPopup()" class="close-button white-button">Close</button>
+</div>
