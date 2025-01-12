@@ -123,8 +123,8 @@ export class PostComponent implements OnInit {
   }
 
   addComment(postId: number): void {
-    if (!this.newComment.text) {
-      this.errorMessage = 'Comment text is required!';
+    if (!this.newComment.text && !this.commentImage) {
+      this.errorMessage = 'Comment text or image is required!';
       return;
     }
     this.errorMessage = null;
@@ -135,9 +135,15 @@ export class PostComponent implements OnInit {
         this.newComment.userId = currentUser.id;
         this.newComment.postId = postId;
 
+        if (this.commentImage) {
+          const base64Image = this.commentImage.img;
+          this.newComment.text += `<br><img src="${base64Image}" alt="Comment Image" class="comment-image" />`;
+        }
+
         this.postService.addCommentToPost(postId, this.newComment).subscribe(
           () => {
             this.newComment = { id: 0, postId: 0, userId: currentUser.id, user: currentUser, text: '' };
+            this.commentImage = null;
             this.loadPosts();
           },
           (error) => {
@@ -239,9 +245,9 @@ export class PostComponent implements OnInit {
       const file = input.files[0];
       const reader = new FileReader();
       reader.onload = () => {
-        this.postImage = { id: 0, img: Array.from(new Uint8Array(reader.result as ArrayBuffer)), userId: this.currentUserId! };
+        this.postImage = { id: 0, img: reader.result as string, user: { id: this.currentUserId!, name: '', password: '' } };
       };
-      reader.readAsArrayBuffer(file);
+      reader.readAsDataURL(file);
     }
   }
 
@@ -251,9 +257,9 @@ export class PostComponent implements OnInit {
       const file = input.files[0];
       const reader = new FileReader();
       reader.onload = () => {
-        this.commentImage = { id: 0, img: Array.from(new Uint8Array(reader.result as ArrayBuffer)), userId: this.currentUserId! };
+        this.commentImage = { id: 0, img: reader.result as string, user: { id: this.currentUserId!, name: '', password: '' } };
       };
-      reader.readAsArrayBuffer(file);
+      reader.readAsDataURL(file);
     }
   }
 

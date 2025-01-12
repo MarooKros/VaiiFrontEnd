@@ -1,5 +1,7 @@
+import { UserModel } from "./UserModel";
+
 export interface PictureModel {
   id: number;
-  img: number[];
-  userId: number;
+  img: string;
+  user: UserModel;
 }

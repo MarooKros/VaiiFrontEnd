@@ -30,11 +30,10 @@
       <span>by {{ post.user.name || 'Unknown' }}</span>
     </div>
     <p>{{ post.text }}</p>
-    <img *ngIf="postImage" [src]="'data:image/jpeg;base64,' + byteArrayToBase64(postImage.img)" alt="Post Image" class="post-image" />
+    <img *ngIf="postImage" [src]="postImage.img" alt="Post Image" class="post-image" />
     <div class="comments-section">
       <div *ngFor="let comment of post.comments" (click)="selectComment(comment.id)" [class.selected]="comment.id === selectedCommentId">
-        <strong>{{ comment.user.name || 'Anonymous' }}:</strong> {{ comment.text }}
-        <img *ngIf="commentImage" [src]="'data:image/jpeg;base64,' + byteArrayToBase64(commentImage.img)" alt="Comment Image" class="comment-image" />
+        <strong>{{ comment.user.name || 'Anonymous' }}:</strong> <span [innerHTML]="comment.text"></span>
         <button *ngIf="comment.userId === getCurrentUserId()" (click)="deleteComment(comment.id)" class="delete-button post-button">Delete</button>
       </div>
       <textarea class="comment-textarea" placeholder="Write a comment..." [(ngModel)]="newComment.text"></textarea>
