@@ -8,7 +8,8 @@ import { PostService } from './Services/post.service';
 import { UserService } from './Services/user.service';
 import { IssueService } from './Services/issue.service';
 import { LogginService } from './Services/loggin.service';
-import { PictureService } from './Services/picture.component';
+import { PictureService } from './Services/picture.service';
+
 
 @NgModule({
   imports: [

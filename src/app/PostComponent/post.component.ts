@@ -14,7 +14,7 @@ import { UserCreateComponent } from '../UserCreateComponent/userCreate.component
 import { CurrentUserComponent } from '../CurrentUserComponent/currentUser.component';
 import { LoginComponent } from '../LogginComponent/login.component';
 import { PictureModel } from '../Models/PictureModel';
-import { PictureService } from '../Services/picture.component';
+import { PictureService } from '../Services/picture.service';
 
 @Component({
   selector: 'app-post',
@@ -143,6 +143,7 @@ export class PostComponent implements OnInit {
         this.newComment.postId = postId;
 
         if (this.commentImage) {
+          this.commentImage.user = currentUser; // Ensure user information is included
           this.pictureService.createPicture(this.commentImage).subscribe(
             (createdPicture: PictureModel) => {
               this.newComment.text += `<br><img src="${createdPicture.img}" alt="Comment Image" class="comment-image" />`;

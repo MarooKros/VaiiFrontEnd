@@ -11,8 +11,7 @@ import { UserService } from '../Services/user.service';
 import { LogginService } from '../Services/loggin.service';
 
 import { PictureModel } from '../Models/PictureModel';
-import { PictureService } from '../Services/picture.component';
-
+import { PictureService } from '../Services/picture.service';
 
 @Component({
   selector: 'app-picture',
@@ -55,7 +54,10 @@ export class PictureComponent implements OnInit {
   loadAllPictures(): void {
     this.pictureService.getAllPictures().subscribe(
       pictures => {
-        this.pictures = pictures;
+        this.pictures = pictures.map(picture => ({
+          ...picture,
+          img: `data:image/jpeg;base64,${picture.img}`
+        }));
       },
       (error: any) => {
         console.error('Error fetching pictures:', error);
@@ -76,7 +78,12 @@ export class PictureComponent implements OnInit {
         if (user) {
           this.pictureService.getAllPictures().subscribe(
             pictures => {
-              this.pictures = pictures.filter(picture => picture.user === user);
+              this.pictures = pictures
+                .filter(picture => picture.user.id === user.id)
+                .map(picture => ({
+                  ...picture,
+                  img: `data:image/jpeg;base64,${picture.img}`
+                }));
             },
             (error: any) => {
               console.error('Error fetching pictures:', error);
