@@ -9,10 +9,12 @@ import { CommentModel } from '../Models/CommentModel';
 import { PostService } from '../Services/post.service';
 import { UserService } from '../Services/user.service';
 import { LogginService } from '../Services/loggin.service';
+
 import { UserCreateComponent } from '../UserCreateComponent/userCreate.component';
 import { CurrentUserComponent } from '../CurrentUserComponent/currentUser.component';
 import { LoginComponent } from '../LogginComponent/login.component';
 import { PictureModel } from '../Models/PictureModel';
+import { PictureService } from '../Services/picture.component';
 
 @Component({
   selector: 'app-post',
@@ -29,7 +31,8 @@ import { PictureModel } from '../Models/PictureModel';
   providers: [
     PostService,
     UserService,
-    LogginService
+    LogginService,
+    PictureService
   ],
   templateUrl: './post.component.html',
   styleUrls: ['./post.component.scss']
@@ -49,7 +52,11 @@ export class PostComponent implements OnInit {
   postImage: PictureModel | null = null;
   commentImage: PictureModel | null = null;
 
-  constructor(private postService: PostService, private logginService: LogginService) {}
+  constructor(
+    private postService: PostService,
+    private logginService: LogginService,
+    private pictureService: PictureService
+  ) {}
 
   ngOnInit(): void {
     this.loadPosts();
@@ -136,25 +143,37 @@ export class PostComponent implements OnInit {
         this.newComment.postId = postId;
 
         if (this.commentImage) {
-          const base64Image = this.commentImage.img;
-          this.newComment.text += `<br><img src="${base64Image}" alt="Comment Image" class="comment-image" />`;
+          this.pictureService.createPicture(this.commentImage).subscribe(
+            (createdPicture: PictureModel) => {
+              this.newComment.text += `<br><img src="${createdPicture.img}" alt="Comment Image" class="comment-image" />`;
+              this.saveComment(postId, currentUser);
+            },
+            (error) => {
+              console.error('Error saving picture:', error);
+              this.errorMessage = 'Could not save the picture. Please try again later.';
+            }
+          );
+        } else {
+          this.saveComment(postId, currentUser);
         }
-
-        this.postService.addCommentToPost(postId, this.newComment).subscribe(
-          () => {
-            this.newComment = { id: 0, postId: 0, userId: currentUser.id, user: currentUser, text: '' };
-            this.commentImage = null;
-            this.loadPosts();
-          },
-          (error) => {
-            console.error('Error adding comment:', error);
-            this.errorMessage = 'Could not add the comment. Please try again later.';
-          }
-        );
       } else {
         this.errorMessage = 'User not logged in.';
       }
     });
+  }
+
+  saveComment(postId: number, currentUser: any): void {
+    this.postService.addCommentToPost(postId, this.newComment).subscribe(
+      () => {
+        this.newComment = { id: 0, postId: 0, userId: currentUser.id, user: currentUser, text: '' };
+        this.commentImage = null;
+        this.loadPosts();
+      },
+      (error) => {
+        console.error('Error adding comment:', error);
+        this.errorMessage = 'Could not add the comment. Please try again later.';
+      }
+    );
   }
 
   deletePost(postId: number): void {

@@ -13,6 +13,7 @@ import { LogginService } from '../Services/loggin.service';
 import { PictureModel } from '../Models/PictureModel';
 import { PictureService } from '../Services/picture.component';
 
+
 @Component({
   selector: 'app-picture',
   standalone: true,
@@ -47,29 +48,47 @@ export class PictureComponent implements OnInit {
     private logginService: LogginService
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.loadAllPictures();
+  }
+
+  loadAllPictures(): void {
+    this.pictureService.getAllPictures().subscribe(
+      pictures => {
+        this.pictures = pictures;
+      },
+      (error: any) => {
+        console.error('Error fetching pictures:', error);
+        this.pictures = [];
+      }
+    );
+  }
 
   searchPicturesByUsername(): void {
+    if (!this.username) {
+      this.loadAllPictures();
+      return;
+    }
+
     this.userService.getUsers().subscribe(
       users => {
-        const filteredUsers = users.filter(user => user.name === this.username);
-        if (filteredUsers.length > 0) {
-          filteredUsers.forEach(user => {
-            this.pictureService.getPicturesByUserId(user.id).subscribe(
-              pictures => {
-                this.pictures = this.pictures.concat(pictures);
-              },
-              error => {
-                console.error('Error fetching pictures:', error);
-              }
-            );
-          });
+        const user = users.find(user => user.name === this.username);
+        if (user) {
+          this.pictureService.getAllPictures().subscribe(
+            pictures => {
+              this.pictures = pictures.filter(picture => picture.user === user);
+            },
+            (error: any) => {
+              console.error('Error fetching pictures:', error);
+              this.pictures = [];
+            }
+          );
         } else {
           console.error('User not found');
           this.pictures = [];
         }
       },
-      error => {
+      (error: any) => {
         console.error('Error fetching users:', error);
         this.pictures = [];
       }

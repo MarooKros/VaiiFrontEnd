@@ -11,8 +11,8 @@ export class PictureService {
 
   constructor(private http: HttpClient) {}
 
-  createPicture(picture: PictureModel, userId: number): Observable<PictureModel> {
-    return this.http.post<PictureModel>(`${this.apiUrl}/createPicture?userId=${userId}`, picture);
+  createPicture(picture: PictureModel): Observable<PictureModel> {
+    return this.http.post<PictureModel>(`${this.apiUrl}/createPicture`, picture);
   }
 
   getPictureById(id: number): Observable<PictureModel> {
@@ -25,9 +25,5 @@ export class PictureService {
 
   deletePicture(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/deletePicture/${id}`);
-  }
-
-  getPicturesByUserId(userId: number): Observable<PictureModel[]> {
-    return this.http.get<PictureModel[]>(`${this.apiUrl}/getPicturesByUserId/${userId}`);
   }
 }

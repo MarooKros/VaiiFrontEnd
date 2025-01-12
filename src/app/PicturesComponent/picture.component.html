@@ -18,12 +18,12 @@
 
 <div *ngIf="pictures.length > 0; else noPictures" class="pictures-container">
   <div *ngFor="let picture of pictures" class="picture-item">
-    <img [src]="'data:image/jpeg;base64,' + byteArrayToBase64(picture.img)" alt="User Picture" />
+    <img [src]="'data:image/jpeg;base64,' + picture.img" alt="User Picture" />
   </div>
 </div>
 
 <ng-template #noPictures>
-  <p>No pictures found for this user.</p>
+  <p>No pictures found.</p>
 </ng-template>
 
 <div *ngIf="showCreateUserPopup" class="popup">
