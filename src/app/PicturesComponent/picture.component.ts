@@ -44,7 +44,6 @@ export class PictureComponent implements OnInit {
   constructor(
     private userService: UserService,
     private pictureService: PictureService,
-    private logginService: LogginService
   ) {}
 
   ngOnInit(): void {
@@ -56,7 +55,7 @@ export class PictureComponent implements OnInit {
       pictures => {
         this.pictures = pictures.map(picture => ({
           ...picture,
-          img: `data:image/jpeg;base64,${picture.img}`
+          img: `${picture.img}`
         }));
       },
       (error: any) => {
@@ -82,7 +81,7 @@ export class PictureComponent implements OnInit {
                 .filter(picture => picture.user.id === user.id)
                 .map(picture => ({
                   ...picture,
-                  img: `data:image/jpeg;base64,${picture.img}`
+                  img: `${picture.img}`
                 }));
             },
             (error: any) => {
@@ -98,6 +97,17 @@ export class PictureComponent implements OnInit {
       (error: any) => {
         console.error('Error fetching users:', error);
         this.pictures = [];
+      }
+    );
+  }
+
+  deletePicture(picture: PictureModel): void {
+    this.pictureService.deletePicture(picture.id).subscribe(
+      () => {
+        this.pictures = this.pictures.filter(p => p.id !== picture.id);
+      },
+      (error: any) => {
+        console.error('Error deleting picture:', error);
       }
     );
   }

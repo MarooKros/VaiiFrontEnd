@@ -33,7 +33,8 @@
     <img *ngIf="postImage" [src]="postImage.img" alt="Post Image" class="post-image" />
     <div class="comments-section">
       <div *ngFor="let comment of post.comments" (click)="selectComment(comment.id)" [class.selected]="comment.id === selectedCommentId">
-        <strong>{{ comment.user.name || 'Anonymous' }}:</strong> <span [innerHTML]="comment.text"></span>
+        <strong>{{ comment.user.name || 'Anonymous' }}:</strong>
+        <span [innerHTML]="comment.text"></span>
         <button *ngIf="comment.userId === getCurrentUserId()" (click)="deleteComment(comment.id)" class="delete-button post-button">Delete</button>
       </div>
       <textarea class="comment-textarea" placeholder="Write a comment..." [(ngModel)]="newComment.text"></textarea>
@@ -53,6 +54,6 @@
 </div>
 
 <div *ngIf="showLoginPopup" class="popup">
-  <app-login (loginSuccess)="closeLoginPopup()"></app-login>
+  <app-login (loginSuccess)="loadPosts()" (loginSuccess)="closeLoginPopup()"></app-login>
   <button (click)="closeLoginPopup()" class="close-button white-button">Close</button>
 </div>

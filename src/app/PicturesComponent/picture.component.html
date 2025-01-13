@@ -18,7 +18,9 @@
 
 <div *ngIf="pictures.length > 0; else noPictures" class="pictures-container">
   <div *ngFor="let picture of pictures" class="picture-item">
-    <img [src]="'data:image/jpeg;base64,' + picture.img" alt="User Picture" />
+    <p>{{ picture.user.name }}</p>
+    <img [src]="'' + picture.img" alt="User Picture" />
+    <button (click)="deletePicture(picture)" class="delete-button">Delete</button>
   </div>
 </div>
 
