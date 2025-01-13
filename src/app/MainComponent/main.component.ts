@@ -1,12 +1,13 @@
 import { Component, ViewChild } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http'; // Import HttpClientModule
 
 import { UserCreateComponent } from '../UserCreateComponent/userCreate.component';
 import { CurrentUserComponent } from '../CurrentUserComponent/currentUser.component';
 import { LoginComponent } from '../LogginComponent/login.component';
 import { LogginService } from '../Services/loggin.service';
-import { PictureComponent } from '../PicturesComponent/picture.component';
+import { Role } from '../Models/RoleModel';
 
 @Component({
   selector: 'app-main',
@@ -14,10 +15,10 @@ import { PictureComponent } from '../PicturesComponent/picture.component';
   imports: [
     RouterModule,
     CommonModule,
+    HttpClientModule,
     UserCreateComponent,
     CurrentUserComponent,
-    LoginComponent,
-    //PictureComponent
+    LoginComponent
   ],
   providers: [LogginService],
   templateUrl: './main.component.html',
@@ -59,5 +60,14 @@ export class MainComponent {
       this.currentUserComponent.ngOnInit();
     }
     this.closeCreateUserPopup();
+  }
+
+  shouldShowAdminButtons(): boolean {
+    const role = this.currentUserComponent?.getCurrentUserRole();
+    if(role === Role.Admin) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }

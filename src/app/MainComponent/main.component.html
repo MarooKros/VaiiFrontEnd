@@ -9,9 +9,9 @@
   <h1>Welcome to the Main Page</h1>
 
   <button routerLink="/post" class="common-button">Go to Post</button>
-  <button routerLink="/user" class="common-button">Go to User</button>
-  <button routerLink="/issue" class="common-button">Go to Issues</button>
-  <button routerLink="/picture" class="common-button">Go to Images</button>
+  <button *ngIf="shouldShowAdminButtons()" routerLink="/user" class="common-button">Go to User</button>
+  <button *ngIf="shouldShowAdminButtons()" routerLink="/issue" class="common-button">Go to Issues</button>
+  <button *ngIf="shouldShowAdminButtons()" routerLink="/picture" class="common-button">Go to Images</button>
 
   <h2 class="centered-header">Aplikácia ešte nie je hotová</h2>
 
@@ -25,3 +25,4 @@
     <button (click)="closeLoginPopup()" class="close-button">Close</button>
   </div>
 </div>
+00
