@@ -44,6 +44,13 @@
       class="common-button">
       Edit Password
     </button>
+
+    <button
+      [disabled]="selectedUserId === null"
+      (click)="openEditRolePopup()"
+      class="common-button">
+      Edit Role
+    </button>
   </div>
 
   <div *ngIf="showCreateUserPopup" class="popup">
@@ -69,5 +76,14 @@
     <input type="password" [(ngModel)]="confirmPassword" placeholder="Confirm Password" />
     <button class="common-button" (click)="savePassword()">Save</button>
     <button (click)="closeEditPasswordPopup()" class="close-button">Close</button>
+  </div>
+
+  <div *ngIf="showEditRolePopup" class="popup">
+    <h3>Edit Role</h3>
+    <select [(ngModel)]="editRole">
+      <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+    </select>
+    <button class="common-button" (click)="saveRole()">Save</button>
+    <button (click)="closeEditRolePopup()" class="close-button">Close</button>
   </div>
 </div>
