@@ -4,6 +4,7 @@
 
 <div class="top-right-buttons">
   <button class="common-button" (click)="openLoginPopup()">Login</button>
+
   <button class="common-button" (click)="openCreateUserPopup()">Register</button>
 </div>
 
@@ -13,8 +14,11 @@
 
 <div class="create-post-box">
   <input type="text" placeholder="Title" [(ngModel)]="newPost.title" [disabled]="isVisitor" />
+
   <textarea placeholder="Write your post..." [(ngModel)]="newPost.text" [disabled]="isVisitor"></textarea>
+
   <input type="file" (change)="onPostImageSelected($event)" [disabled]="isVisitor" />
+
   <button (click)="createOrUpdatePost()" class="post-button" [disabled]="isVisitor">
     {{ isEditing ? 'Save Changes' : 'Post' }}
   </button>
@@ -30,36 +34,73 @@
   <div class="post-box" *ngFor="let post of posts">
     <div class="post-header">
       <h3>{{ post.title }}</h3>
+
       <span>by {{ post.user.name || 'Unknown' }}</span>
     </div>
+
     <p>{{ post.text }}</p>
+
     <img *ngIf="postImage" [src]="postImage.img" alt="Post Image" class="post-image" />
+
     <div class="comments-section">
-      <div *ngFor="let comment of post.comments" (click)="selectComment(comment.id)" [class.selected]="comment.id === selectedCommentId">
+      <div *ngFor="let comment of post.comments"
+        (click)="selectComment(comment.id)"
+        [class.selected]="comment.id === selectedCommentId"
+      >
         <strong>{{ comment.user.name || 'Anonymous' }}:</strong>
+
         <span [innerHTML]="comment.text"></span>
-        <button *ngIf="comment.userId === getCurrentUserId() || currentUserComponent.getCurrentUserRole() === 'Admin'" (click)="deleteComment(comment.id)" class="delete-button post-button">Delete</button>
+
+        <button
+          *ngIf="comment.userId === getCurrentUserId() || currentUserComponent.getCurrentUserRole() === 'Admin'"
+          (click)="deleteComment(comment.id)"
+          class="delete-button post-button">Delete
+        </button>
       </div>
-      <textarea class="comment-textarea" placeholder="Write a comment..." [(ngModel)]="newComment.text" [disabled]="isVisitor"></textarea>
+
+      <textarea
+        class="comment-textarea"
+        placeholder="Write a comment..."
+        [(ngModel)]="newComment.text"
+        [disabled]="isVisitor">
+      </textarea>
+
       <input type="file" (change)="onCommentImageSelected($event)" [disabled]="isVisitor" />
-      <button class="add-comment-button post-button" (click)="addComment(post.id)" [disabled]="isVisitor">Add Comment</button>
+
+      <button
+        class="add-comment-button post-button"
+        (click)="addComment(post.id)"
+        [disabled]="isVisitor">Add Comment
+      </button>
+
       <div *ngIf="isVisitor" class="info-message">
         You have the visitor role and cannot add comments.
       </div>
     </div>
     <div class="button-group">
       <button (click)="editPost(post)" class="common-button post-button">Edit</button>
-      <button (click)="deletePost(post.id)" class="delete-button post-button" *ngIf="post.userId === getCurrentUserId() || currentUserComponent.getCurrentUserRole() === 'Admin'">Delete</button>
+
+      <button
+        (click)="deletePost(post.id)"
+        class="delete-button post-button"
+        *ngIf="post.userId === getCurrentUserId() || currentUserComponent.getCurrentUserRole() === 'Admin'">Delete
+      </button>
     </div>
   </div>
 </div>
 
 <div *ngIf="showCreateUserPopup" class="popup">
-  <app-user-create (userCreated)="closeCreateUserPopup()" (closePopup)="closeCreateUserPopup()" (userCreatedAndLoggedIn)="onUserCreatedAndLoggedIn()"></app-user-create>
+  <app-user-create
+    (userCreated)="closeCreateUserPopup()"
+    (closePopup)="closeCreateUserPopup()"
+    (userCreatedAndLoggedIn)="onUserCreatedAndLoggedIn()">
+  </app-user-create>
+
   <button (click)="closeCreateUserPopup()" class="close-button white-button">Close</button>
 </div>
 
 <div *ngIf="showLoginPopup" class="popup">
   <app-login (loginSuccess)="loadPosts()" (loginSuccess)="closeLoginPopup()"></app-login>
+
   <button (click)="closeLoginPopup()" class="close-button white-button">Close</button>
 </div>

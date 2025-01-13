@@ -1,27 +1,39 @@
 <div class="index-container">
   <div class="top-right-buttons">
     <button class="common-button" (click)="openLoginPopup()">Login</button>
+
     <button class="white-button" (click)="openCreateUserPopup()">Register</button>
   </div>
 
   <app-current-user></app-current-user>
 
-  <h1>Welcome to the Main Page</h1>
+  <h1>Welcome to my forum</h1>
 
   <button routerLink="/post" class="common-button">Go to Post</button>
+
   <button *ngIf="shouldShowAdminButtons()" routerLink="/user" class="common-button">Go to User</button>
+
   <button *ngIf="shouldShowAdminButtons()" routerLink="/issue" class="common-button">Go to Issues</button>
+
   <button *ngIf="shouldShowAdminButtons()" routerLink="/picture" class="common-button">Go to Images</button>
 
-  <h2 class="centered-header">Aplikácia ešte nie je hotová</h2>
+  <h2 class="centered-header">
+    Register before moving on to posts, as a visitor you will not be able to create a post nor comment
+  </h2>
 
   <div *ngIf="showCreateUserPopup" class="popup">
-    <app-user-create (userCreated)="closeCreateUserPopup()" (closePopup)="closeCreateUserPopup()" (userCreatedAndLoggedIn)="onUserCreatedAndLoggedIn()"></app-user-create>
+    <app-user-create
+      (userCreated)="closeCreateUserPopup()"
+      (closePopup)="closeCreateUserPopup()"
+      (userCreatedAndLoggedIn)="onUserCreatedAndLoggedIn()">
+    </app-user-create>
+
     <button (click)="closeCreateUserPopup()" class="close-button">Close</button>
   </div>
 
   <div *ngIf="showLoginPopup" class="popup">
     <app-login (loginSuccess)="onLoginSuccess()"></app-login>
+
     <button (click)="closeLoginPopup()" class="close-button">Close</button>
   </div>
 </div>

@@ -9,7 +9,7 @@ import { LoginComponent } from '../LogginComponent/login.component';
 import { UserCreateComponent } from '../UserCreateComponent/userCreate.component';
 import { UserModel } from '../Models/UserModel';
 import { UserService } from '../Services/user.service';
-import { Role, RoleModel } from '../Models/RoleModel';
+import { Role } from '../Models/RoleModel';
 import { RolesService } from '../Services/roles.service';
 
 @Component({

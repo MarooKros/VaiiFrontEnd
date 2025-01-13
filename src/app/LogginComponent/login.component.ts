@@ -34,7 +34,7 @@ export class LoginComponent {
             () => {
               this.errorMessage = '';
               console.log('User logged in:', user);
-              this.loginSuccess.emit(); // Emit the loginSuccess event
+              this.loginSuccess.emit();
               this.logginService.getLoggedInUser().subscribe(
                 loggedInUser => {
                   console.log('Logged in user:', loggedInUser);

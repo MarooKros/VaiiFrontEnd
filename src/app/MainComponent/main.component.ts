@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http'; // Import HttpClientModule
+import { HttpClientModule } from '@angular/common/http';
 
 import { UserCreateComponent } from '../UserCreateComponent/userCreate.component';
 import { CurrentUserComponent } from '../CurrentUserComponent/currentUser.component';
@@ -63,11 +63,6 @@ export class MainComponent {
   }
 
   shouldShowAdminButtons(): boolean {
-    const role = this.currentUserComponent?.getCurrentUserRole();
-    if(role === Role.Admin) {
-      return true;
-    } else {
-      return false;
-    }
+    return this.currentUserComponent?.getCurrentUserRole() === Role.Admin;
   }
 }

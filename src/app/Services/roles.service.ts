@@ -13,7 +13,9 @@ export class RolesService {
   constructor(private http: HttpClient) {}
 
   getCurrentUserRole(user: UserModel): Observable<RoleModel> {
-    return this.http.get<RoleModel>(`${this.apiUrl}/currentRole`, { params: { Id: user.id, Name: user.name, Password: user.password } });
+    return this.http.get<RoleModel>(
+      `${this.apiUrl}/currentRole`,
+      { params: { Id: user.id, Name: user.name, Password: user.password } });
   }
 
   editUserRole(userId: string, userRole: string): Observable<void> {

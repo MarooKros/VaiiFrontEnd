@@ -7,15 +7,14 @@ import { FormsModule } from '@angular/forms';
 import { PostModel } from '../Models/PostModel';
 import { CommentModel } from '../Models/CommentModel';
 import { PostService } from '../Services/post.service';
-import { UserService } from '../Services/user.service';
 import { LogginService } from '../Services/loggin.service';
+import { PictureModel } from '../Models/PictureModel';
+import { PictureService } from '../Services/picture.service';
+import { Role } from '../Models/RoleModel';
 
 import { UserCreateComponent } from '../UserCreateComponent/userCreate.component';
 import { CurrentUserComponent } from '../CurrentUserComponent/currentUser.component';
 import { LoginComponent } from '../LogginComponent/login.component';
-import { PictureModel } from '../Models/PictureModel';
-import { PictureService } from '../Services/picture.service';
-import { Role } from '../Models/RoleModel';
 
 @Component({
   selector: 'app-post',
@@ -31,8 +30,8 @@ import { Role } from '../Models/RoleModel';
   ],
   providers: [
     PostService,
-    UserService,
     LogginService,
+    PictureService
   ],
   templateUrl: './post.component.html',
   styleUrls: ['./post.component.scss']
@@ -95,7 +94,7 @@ export class PostComponent implements OnInit {
   createOrUpdatePost(): void {
     const currentUserRole = this.currentUserComponent.getCurrentUserRole();
     if (currentUserRole === Role.Visitor) {
-      this.errorMessage = 'There was a problem writing the post. Visitors cannot create or update posts.';
+      this.errorMessage = 'Visitors cannot create or update posts.';
       return;
     }
 
@@ -154,7 +153,7 @@ export class PostComponent implements OnInit {
   addComment(postId: number): void {
     const currentUserRole = this.currentUserComponent.getCurrentUserRole();
     if (currentUserRole === Role.Visitor) {
-      this.errorMessage = 'There was a problem writing the comment. Visitors cannot add comments.';
+      this.errorMessage = 'Visitors cannot add comments.';
       return;
     }
 
@@ -174,9 +173,7 @@ export class PostComponent implements OnInit {
           this.commentImage.user = currentUser;
           this.pictureService.createPicture(this.commentImage).subscribe(
             (createdPicture: PictureModel) => {
-              console.log('Created picture URL:', createdPicture.img);
               this.newComment.text += `<br><img src="${createdPicture.img}" alt="Comment Image" class="comment-image" />`;
-              console.log('Updated comment text:', this.newComment.text);
               this.saveComment(postId, currentUser);
             },
             (error) => {
@@ -194,10 +191,8 @@ export class PostComponent implements OnInit {
   }
 
   saveComment(postId: number, currentUser: any): void {
-    console.log('Saving comment:', this.newComment.text);
     this.postService.addCommentToPost(postId, this.newComment).subscribe(
       () => {
-        console.log('Comment saved successfully');
         this.newComment = { id: 0, postId: 0, userId: currentUser.id, user: currentUser, text: '' };
         this.commentImage = null;
         this.loadPosts();
@@ -215,7 +210,6 @@ export class PostComponent implements OnInit {
         const currentUserRole = this.currentUserComponent.getCurrentUserRole();
         if (post.userId === currentUser?.id || currentUserRole === Role.Admin) {
           this.postService.deletePost(postId).subscribe(() => {
-            console.log('Post deleted successfully');
             this.loadPosts();
           }, error => {
             console.error('Error deleting post', error);
@@ -240,7 +234,6 @@ export class PostComponent implements OnInit {
         const currentUserRole = this.currentUserComponent.getCurrentUserRole();
         if (comment && (comment.userId === currentUser?.id || currentUserRole === Role.Admin)) {
           this.postService.deleteComment(commentId).subscribe(() => {
-            console.log('Comment deleted successfully');
             const imgSrcMatch = comment.text.match(/<br><img src="([^"]+)"/);
             if (imgSrcMatch) {
               const imgSrc = imgSrcMatch[1];
@@ -248,7 +241,6 @@ export class PostComponent implements OnInit {
                 const picture = pictures.find(p => p.img === imgSrc);
                 if (picture) {
                   this.pictureService.deletePicture(picture.id).subscribe(() => {
-                    console.log('Associated picture deleted successfully');
                     this.loadPosts();
                   }, error => {
                     console.error('Error deleting associated picture:', error);
@@ -293,28 +285,17 @@ export class PostComponent implements OnInit {
 
   closeLoginPopup() {
     this.showLoginPopup = false;
-
-    if (this.currentUserComponent) {
-      this.currentUserComponent.ngOnInit();
-    }
     this.updateUserRole();
     this.loadPosts();
   }
 
   closeCreateUserPopup() {
     this.showCreateUserPopup = false;
-
-    if (this.currentUserComponent) {
-      this.currentUserComponent.ngOnInit();
-    }
     this.updateUserRole();
     this.loadPosts();
   }
 
   onUserCreatedAndLoggedIn() {
-    if (this.currentUserComponent) {
-      this.currentUserComponent.ngOnInit();
-    }
     this.closeCreateUserPopup();
     this.updateUserRole();
     this.loadPosts();

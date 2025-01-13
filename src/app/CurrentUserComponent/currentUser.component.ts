@@ -1,9 +1,9 @@
-import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { LogginService } from '../Services/loggin.service';
 import { RolesService } from '../Services/roles.service';
 import { UserModel } from '../Models/UserModel';
-import { Role, RoleModel } from '../Models/RoleModel';
+import { Role } from '../Models/RoleModel';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -18,15 +18,14 @@ import { CommonModule } from '@angular/common';
   `,
   styleUrls: ['./currentUser.component.scss']
 })
-export class CurrentUserComponent implements OnInit, AfterViewInit {
+export class CurrentUserComponent implements OnInit {
   currentUser: UserModel | null = null;
   currentUserRole: Role | null = null;
 
   constructor(
     private logginService: LogginService,
     private rolesService: RolesService,
-    private router: Router,
-    private cdr: ChangeDetectorRef
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -35,7 +34,6 @@ export class CurrentUserComponent implements OnInit, AfterViewInit {
         console.log('User received:', user);
         this.currentUser = user;
         this.fetchUserRole(user);
-        this.cdr.detectChanges();
       },
       error => {
         console.error('Error fetching logged in user:', error);
@@ -47,20 +45,14 @@ export class CurrentUserComponent implements OnInit, AfterViewInit {
         console.log('User logged in:', user);
         this.currentUser = user;
         this.fetchUserRole(user);
-        this.cdr.detectChanges();
       }
     );
-  }
-
-  ngAfterViewInit(): void {
-    this.cdr.detectChanges();
   }
 
   logout(): void {
     this.logginService.logOutUser().subscribe(() => {
       this.currentUser = null;
       this.currentUserRole = null;
-      this.cdr.detectChanges();
       this.router.navigate(['/']);
     });
   }
@@ -76,7 +68,6 @@ export class CurrentUserComponent implements OnInit, AfterViewInit {
           } else {
             this.currentUserRole = Role.Visitor;
           }
-          this.cdr.detectChanges();
         },
         error => {
           console.error('Error fetching user role:', error);
