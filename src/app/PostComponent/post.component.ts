@@ -15,6 +15,7 @@ import { CurrentUserComponent } from '../CurrentUserComponent/currentUser.compon
 import { LoginComponent } from '../LogginComponent/login.component';
 import { PictureModel } from '../Models/PictureModel';
 import { PictureService } from '../Services/picture.service';
+import { Role } from '../Models/RoleModel';
 
 @Component({
   selector: 'app-post',
@@ -50,6 +51,7 @@ export class PostComponent implements OnInit {
   currentUserId: number | null = null;
   postImage: PictureModel | null = null;
   commentImage: PictureModel | null = null;
+  isVisitor: boolean = false;
 
   constructor(
     private postService: PostService,
@@ -59,9 +61,24 @@ export class PostComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadPosts();
-    this.logginService.getLoggedInUser().subscribe(user => {
-      this.currentUserId = user?.id || null;
-    });
+    this.updateUserRole();
+  }
+
+  updateUserRole(): void {
+    this.logginService.getLoggedInUser().subscribe(
+      user => {
+        this.currentUserId = user?.id || null;
+        this.isVisitor = this.currentUserComponent.getCurrentUserRole() === Role.Visitor;
+      },
+      error => {
+        if (error.status === 404) {
+          this.currentUserId = null;
+          this.isVisitor = true;
+        } else {
+          console.error('Error fetching logged-in user:', error);
+        }
+      }
+    );
   }
 
   loadPosts(): void {
@@ -76,6 +93,12 @@ export class PostComponent implements OnInit {
   }
 
   createOrUpdatePost(): void {
+    const currentUserRole = this.currentUserComponent.getCurrentUserRole();
+    if (currentUserRole === Role.Visitor) {
+      this.errorMessage = 'There was a problem writing the post. Visitors cannot create or update posts.';
+      return;
+    }
+
     if (!this.newPost.title || !this.newPost.text) {
       this.errorMessage = 'Title and content are required!';
       return;
@@ -129,6 +152,12 @@ export class PostComponent implements OnInit {
   }
 
   addComment(postId: number): void {
+    const currentUserRole = this.currentUserComponent.getCurrentUserRole();
+    if (currentUserRole === Role.Visitor) {
+      this.errorMessage = 'There was a problem writing the comment. Visitors cannot add comments.';
+      return;
+    }
+
     if (!this.newComment.text && !this.commentImage) {
       this.errorMessage = 'Comment text or image is required!';
       return;
@@ -183,7 +212,8 @@ export class PostComponent implements OnInit {
   deletePost(postId: number): void {
     this.logginService.getLoggedInUser().subscribe(currentUser => {
       this.postService.getPostById(postId).subscribe(post => {
-        if (post.userId === currentUser?.id) {
+        const currentUserRole = this.currentUserComponent.getCurrentUserRole();
+        if (post.userId === currentUser?.id || currentUserRole === Role.Admin) {
           this.postService.deletePost(postId).subscribe(() => {
             console.log('Post deleted successfully');
             this.loadPosts();
@@ -207,7 +237,8 @@ export class PostComponent implements OnInit {
     this.logginService.getLoggedInUser().subscribe(currentUser => {
       this.postService.getPosts().subscribe(posts => {
         const comment = posts.flatMap(post => post.comments || []).find(comment => comment.id === commentId);
-        if (comment && comment.userId === currentUser?.id) {
+        const currentUserRole = this.currentUserComponent.getCurrentUserRole();
+        if (comment && (comment.userId === currentUser?.id || currentUserRole === Role.Admin)) {
           this.postService.deleteComment(commentId).subscribe(() => {
             console.log('Comment deleted successfully');
             const imgSrcMatch = comment.text.match(/<br><img src="([^"]+)"/);
@@ -266,6 +297,8 @@ export class PostComponent implements OnInit {
     if (this.currentUserComponent) {
       this.currentUserComponent.ngOnInit();
     }
+    this.updateUserRole();
+    this.loadPosts();
   }
 
   closeCreateUserPopup() {
@@ -274,6 +307,8 @@ export class PostComponent implements OnInit {
     if (this.currentUserComponent) {
       this.currentUserComponent.ngOnInit();
     }
+    this.updateUserRole();
+    this.loadPosts();
   }
 
   onUserCreatedAndLoggedIn() {
@@ -281,6 +316,17 @@ export class PostComponent implements OnInit {
       this.currentUserComponent.ngOnInit();
     }
     this.closeCreateUserPopup();
+    this.updateUserRole();
+    this.loadPosts();
+  }
+
+  onLogout() {
+    this.logginService.logOutUser().subscribe(() => {
+      this.currentUserId = null;
+      this.isVisitor = true;
+      this.updateUserRole();
+      this.loadPosts();
+    });
   }
 
   onPostImageSelected(event: Event): void {

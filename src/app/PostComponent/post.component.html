@@ -1,5 +1,5 @@
 <div class="header">
-  <h1>Recenzie</h1>
+  <h1>Forum</h1>
 </div>
 
 <div class="top-right-buttons">
@@ -12,14 +12,17 @@
 <button routerLink="/" class="common-button">Go to Main Page</button>
 
 <div class="create-post-box">
-  <input type="text" placeholder="Title" [(ngModel)]="newPost.title" />
-  <textarea placeholder="Write your post..." [(ngModel)]="newPost.text"></textarea>
-  <input type="file" (change)="onPostImageSelected($event)" />
-  <button (click)="createOrUpdatePost()" class="post-button">
+  <input type="text" placeholder="Title" [(ngModel)]="newPost.title" [disabled]="isVisitor" />
+  <textarea placeholder="Write your post..." [(ngModel)]="newPost.text" [disabled]="isVisitor"></textarea>
+  <input type="file" (change)="onPostImageSelected($event)" [disabled]="isVisitor" />
+  <button (click)="createOrUpdatePost()" class="post-button" [disabled]="isVisitor">
     {{ isEditing ? 'Save Changes' : 'Post' }}
   </button>
   <div *ngIf="errorMessage" class="error-message">
     {{ errorMessage }}
+  </div>
+  <div *ngIf="isVisitor" class="info-message">
+    You have the visitor role and cannot create or update posts.
   </div>
 </div>
 
@@ -35,15 +38,18 @@
       <div *ngFor="let comment of post.comments" (click)="selectComment(comment.id)" [class.selected]="comment.id === selectedCommentId">
         <strong>{{ comment.user.name || 'Anonymous' }}:</strong>
         <span [innerHTML]="comment.text"></span>
-        <button *ngIf="comment.userId === getCurrentUserId()" (click)="deleteComment(comment.id)" class="delete-button post-button">Delete</button>
+        <button *ngIf="comment.userId === getCurrentUserId() || currentUserComponent.getCurrentUserRole() === 'Admin'" (click)="deleteComment(comment.id)" class="delete-button post-button">Delete</button>
       </div>
-      <textarea class="comment-textarea" placeholder="Write a comment..." [(ngModel)]="newComment.text"></textarea>
-      <input type="file" (change)="onCommentImageSelected($event)" />
-      <button class="add-comment-button post-button" (click)="addComment(post.id)">Add Comment</button>
+      <textarea class="comment-textarea" placeholder="Write a comment..." [(ngModel)]="newComment.text" [disabled]="isVisitor"></textarea>
+      <input type="file" (change)="onCommentImageSelected($event)" [disabled]="isVisitor" />
+      <button class="add-comment-button post-button" (click)="addComment(post.id)" [disabled]="isVisitor">Add Comment</button>
+      <div *ngIf="isVisitor" class="info-message">
+        You have the visitor role and cannot add comments.
+      </div>
     </div>
     <div class="button-group">
       <button (click)="editPost(post)" class="common-button post-button">Edit</button>
-      <button (click)="deletePost(post.id)" class="delete-button post-button">Delete</button>
+      <button (click)="deletePost(post.id)" class="delete-button post-button" *ngIf="post.userId === getCurrentUserId() || currentUserComponent.getCurrentUserRole() === 'Admin'">Delete</button>
     </div>
   </div>
 </div>

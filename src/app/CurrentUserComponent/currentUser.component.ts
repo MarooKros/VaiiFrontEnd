@@ -61,10 +61,7 @@ export class CurrentUserComponent implements OnInit, AfterViewInit {
       this.currentUser = null;
       this.currentUserRole = null;
       this.cdr.detectChanges();
-      this.router.navigate([], {
-        queryParams: { refresh: new Date().getTime() },
-        queryParamsHandling: 'merge'
-      });
+      this.router.navigate(['/']);
     });
   }
 
@@ -72,7 +69,6 @@ export class CurrentUserComponent implements OnInit, AfterViewInit {
     if (user) {
       this.rolesService.getCurrentUserRole(user).subscribe(
         (roleResponse: any) => {
-          console.log('Role response received:', roleResponse);
           if (typeof roleResponse === 'number') {
             this.currentUserRole = this.mapRoleNumberToEnum(roleResponse);
           } else if (roleResponse && roleResponse.role) {
@@ -80,7 +76,6 @@ export class CurrentUserComponent implements OnInit, AfterViewInit {
           } else {
             this.currentUserRole = Role.Visitor;
           }
-          console.log('Current user role set to:', this.currentUserRole);
           this.cdr.detectChanges();
         },
         error => {
@@ -89,7 +84,6 @@ export class CurrentUserComponent implements OnInit, AfterViewInit {
       );
     } else {
       this.currentUserRole = Role.Visitor;
-      console.log('User is null, setting role to Visitor');
     }
   }
 
@@ -107,7 +101,6 @@ export class CurrentUserComponent implements OnInit, AfterViewInit {
   }
 
   getCurrentUserRole(): Role | null {
-    console.log('Returning current user role:', this.currentUserRole);
     return this.currentUserRole;
   }
 }

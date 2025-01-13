@@ -9,6 +9,8 @@ import { LoginComponent } from '../LogginComponent/login.component';
 import { UserCreateComponent } from '../UserCreateComponent/userCreate.component';
 import { UserModel } from '../Models/UserModel';
 import { UserService } from '../Services/user.service';
+import { Role, RoleModel } from '../Models/RoleModel';
+import { RolesService } from '../Services/roles.service';
 
 @Component({
   selector: 'app-user',
@@ -22,7 +24,7 @@ import { UserService } from '../Services/user.service';
     CurrentUserComponent,
     LoginComponent
   ],
-  providers: [UserService],
+  providers: [UserService, RolesService],
   templateUrl: './user.component.html',
   styleUrls: ['./user.component.scss']
 })
@@ -35,12 +37,15 @@ export class UserComponent implements OnInit {
   showLoginPopup: boolean = false;
   showEditNamePopup: boolean = false;
   showEditPasswordPopup: boolean = false;
+  showEditRolePopup: boolean = false;
   editName: string = '';
   editPassword: string = '';
   confirmPassword: string = '';
   selectedUser: UserModel | null = null;
+  editRole: Role | null = null;
+  roles = Object.values(Role);
 
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService, private rolesService: RolesService) {}
 
   ngOnInit(): void {
     this.loadUsers();
@@ -60,6 +65,20 @@ export class UserComponent implements OnInit {
   selectUser(user: UserModel): void {
     this.selectedUserId = user.id;
     this.selectedUser = user;
+    this.rolesService.getCurrentUserRole(user).subscribe(
+      (roleResponse: any) => {
+        if (typeof roleResponse === 'number') {
+          this.editRole = this.mapRoleNumberToEnum(roleResponse);
+        } else if (roleResponse && roleResponse.role) {
+          this.editRole = roleResponse.role;
+        } else {
+          this.editRole = Role.Visitor;
+        }
+      },
+      (error) => {
+        console.error('Error fetching user role:', error);
+      }
+    );
   }
 
   deleteUser(): void {
@@ -92,6 +111,28 @@ export class UserComponent implements OnInit {
       });
     } else {
       alert('Passwords do not match');
+    }
+  }
+
+  saveRole() {
+    if (this.selectedUser && this.editRole !== null) {
+      this.rolesService.editUserRole(this.selectedUser.id.toString(), this.editRole).subscribe(() => {
+        this.closeEditRolePopup();
+        this.loadUsers();
+      });
+    }
+  }
+
+  mapRoleNumberToEnum(roleNumber: number): Role {
+    switch (roleNumber) {
+      case 0:
+        return Role.Visitor;
+      case 1:
+        return Role.User;
+      case 2:
+        return Role.Admin;
+      default:
+        return Role.Visitor;
     }
   }
 
@@ -133,12 +174,16 @@ export class UserComponent implements OnInit {
     this.showEditNamePopup = false;
   }
 
+  closeEditRolePopup() {
+    this.showEditRolePopup = false;
+  }
+
   openEditNamePopup() {
     if (this.selectedUser) {
       this.editName = this.selectedUser.name;
       this.showEditNamePopup = true;
       this.showEditPasswordPopup = false;
-      this.loadUsers();
+      this.showEditRolePopup = false;
     }
   }
 
@@ -148,6 +193,15 @@ export class UserComponent implements OnInit {
       this.confirmPassword = '';
       this.showEditPasswordPopup = true;
       this.showEditNamePopup = false;
+      this.showEditRolePopup = false;
+    }
+  }
+
+  openEditRolePopup() {
+    if (this.selectedUser) {
+      this.showEditRolePopup = true;
+      this.showEditNamePopup = false;
+      this.showEditPasswordPopup = false;
     }
   }
 
