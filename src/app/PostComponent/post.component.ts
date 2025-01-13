@@ -32,7 +32,6 @@ import { PictureService } from '../Services/picture.service';
     PostService,
     UserService,
     LogginService,
-    PictureService
   ],
   templateUrl: './post.component.html',
   styleUrls: ['./post.component.scss']
@@ -55,7 +54,7 @@ export class PostComponent implements OnInit {
   constructor(
     private postService: PostService,
     private logginService: LogginService,
-    private pictureService: PictureService
+    private pictureService: PictureService,
   ) {}
 
   ngOnInit(): void {
@@ -143,10 +142,12 @@ export class PostComponent implements OnInit {
         this.newComment.postId = postId;
 
         if (this.commentImage) {
-          this.commentImage.user = currentUser; // Ensure user information is included
+          this.commentImage.user = currentUser;
           this.pictureService.createPicture(this.commentImage).subscribe(
             (createdPicture: PictureModel) => {
+              console.log('Created picture URL:', createdPicture.img);
               this.newComment.text += `<br><img src="${createdPicture.img}" alt="Comment Image" class="comment-image" />`;
+              console.log('Updated comment text:', this.newComment.text);
               this.saveComment(postId, currentUser);
             },
             (error) => {
@@ -164,8 +165,10 @@ export class PostComponent implements OnInit {
   }
 
   saveComment(postId: number, currentUser: any): void {
+    console.log('Saving comment:', this.newComment.text);
     this.postService.addCommentToPost(postId, this.newComment).subscribe(
       () => {
+        console.log('Comment saved successfully');
         this.newComment = { id: 0, postId: 0, userId: currentUser.id, user: currentUser, text: '' };
         this.commentImage = null;
         this.loadPosts();
@@ -207,9 +210,30 @@ export class PostComponent implements OnInit {
         if (comment && comment.userId === currentUser?.id) {
           this.postService.deleteComment(commentId).subscribe(() => {
             console.log('Comment deleted successfully');
-            this.loadPosts();
+            const imgSrcMatch = comment.text.match(/<br><img src="([^"]+)"/);
+            if (imgSrcMatch) {
+              const imgSrc = imgSrcMatch[1];
+              this.pictureService.getAllPictures().subscribe(pictures => {
+                const picture = pictures.find(p => p.img === imgSrc);
+                if (picture) {
+                  this.pictureService.deletePicture(picture.id).subscribe(() => {
+                    console.log('Associated picture deleted successfully');
+                    this.loadPosts();
+                  }, error => {
+                    console.error('Error deleting associated picture:', error);
+                  });
+                } else {
+                  this.loadPosts();
+                }
+              }, error => {
+                console.error('Error fetching pictures:', error);
+                this.loadPosts();
+              });
+            } else {
+              this.loadPosts();
+            }
           }, error => {
-            console.error('Error deleting comment', error);
+            console.error('Error deleting comment:', error);
           });
         } else {
           console.error('User is not authorized to delete this comment');
@@ -281,14 +305,5 @@ export class PostComponent implements OnInit {
       };
       reader.readAsDataURL(file);
     }
-  }
-
-  byteArrayToBase64(byteArray: number[]): string {
-    let binary = '';
-    const len = byteArray.length;
-    for (let i = 0; i < len; i++) {
-      binary += String.fromCharCode(byteArray[i]);
-    }
-    return window.btoa(binary);
   }
 }
