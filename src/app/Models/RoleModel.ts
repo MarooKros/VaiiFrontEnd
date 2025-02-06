@@ -3,7 +3,7 @@ import { UserModel } from "./UserModel";
 export interface RoleModel {
   id: number;
   role: Role;
-  users: UserModel[];
+  users: UserModel;
 }
 
 export enum Role {
