@@ -116,7 +116,7 @@ export class UserComponent implements OnInit {
 
   saveRole() {
     if (this.selectedUser && this.editRole !== null) {
-      this.rolesService.editUserRole(this.selectedUser.id.toString(), this.editRole).subscribe(() => {
+      this.rolesService.editUserRole(this.selectedUser.id, this.editRole).subscribe(() => {
         this.closeEditRolePopup();
         this.loadUsers();
       });

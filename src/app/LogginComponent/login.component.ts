@@ -7,12 +7,14 @@ import { FormsModule } from '@angular/forms';
 import { UserService } from '../Services/user.service';
 import { LogginService } from '../Services/loggin.service';
 import { UserModel } from '../Models/UserModel';
+import { RolesService } from '../Services/roles.service';
+import { Role } from '../Models/RoleModel';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [RouterModule, CommonModule, HttpClientModule, FormsModule],
-  providers: [UserService, LogginService],
+  providers: [UserService, LogginService, RolesService],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
@@ -23,7 +25,12 @@ export class LoginComponent {
   password: string = '';
   errorMessage: string = '';
 
-  constructor(private userService: UserService, private logginService: LogginService, private router: Router) {}
+  constructor(
+    private userService: UserService,
+    private logginService: LogginService,
+    private rolesService: RolesService,
+    private router: Router
+  ) {}
 
   login() {
     this.userService.getUsers().subscribe(
@@ -34,6 +41,23 @@ export class LoginComponent {
             () => {
               this.errorMessage = '';
               console.log('User logged in:', user);
+              this.rolesService.getCurrentUserRole(user).subscribe(
+                role => {
+                  if (role === null || role === undefined) {
+                    this.rolesService.editUserRole(user.id, Role.Admin).subscribe(
+                      () => {
+                        console.log('Role set to Admin for user:', user);
+                      },
+                      error => {
+                        console.error('Error setting role to Admin:', error);
+                      }
+                    );
+                  }
+                },
+                error => {
+                  console.error('Error fetching user role:', error);
+                }
+              );
               this.loginSuccess.emit();
               this.logginService.getLoggedInUser().subscribe(
                 loggedInUser => {

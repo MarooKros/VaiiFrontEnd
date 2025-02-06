@@ -7,12 +7,14 @@ import { FormsModule } from '@angular/forms';
 import { LogginService } from '../Services/loggin.service';
 import { UserService } from '../Services/user.service';
 import { UserModel } from '../Models/UserModel';
+import { RolesService } from '../Services/roles.service';
+import { Role } from '../Models/RoleModel';
 
 @Component({
   selector: 'app-user-create',
   standalone: true,
   imports: [RouterModule, CommonModule, HttpClientModule, FormsModule],
-  providers: [UserService, LogginService],
+  providers: [UserService, LogginService, RolesService],
   templateUrl: './userCreate.component.html',
   styleUrls: ['./userCreate.component.scss']
 })
@@ -29,7 +31,11 @@ export class UserCreateComponent {
   passwordValid: boolean = true;
   passwordErrorMessage: string = '';
 
-  constructor(private userService: UserService, private logginService: LogginService) {}
+  constructor(
+    private userService: UserService,
+    private logginService: LogginService,
+    private rolesService: RolesService
+  ) {}
 
   closePop() {
     this.closePopup.emit();
@@ -67,11 +73,20 @@ export class UserCreateComponent {
       this.userService.createUser(this.user).subscribe(
         response => {
           console.log('User created:', response);
+          this.user.id = response.id;
           this.logginService.logInUser(this.user).subscribe(
             () => {
-              this.userCreated.emit();
-              this.closePopup.emit();
-              this.userCreatedAndLoggedIn.emit();
+              this.rolesService.editUserRole(response.id, Role.User).subscribe(
+                () => {
+                  console.log('Role set to User for user:', response);
+                  this.userCreated.emit();
+                  this.closePopup.emit();
+                  this.userCreatedAndLoggedIn.emit();
+                },
+                error => {
+                  console.error('Error setting role to Admin:', error);
+                }
+              );
             },
             error => {
               console.error('Error logging in user:', error);
