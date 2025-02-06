@@ -57,3 +57,13 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+
+
+Návod na spustenie:
+
+
+Pred spustením treba preinštalovať balíčky
+  - do terminala napíšeme 'npm i'
+Pre spustenie aplikácie musíte mať zapnutý backend
+  - pre spustenie aplikácie je potrebné napísať do terminála 'npm run start'

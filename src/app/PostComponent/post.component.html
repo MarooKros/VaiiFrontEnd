@@ -78,7 +78,11 @@
       </div>
     </div>
     <div class="button-group">
-      <button (click)="editPost(post)" class="common-button post-button">Edit</button>
+      <button
+        *ngIf="post.userId === getCurrentUserId()"
+        (click)="editPost(post)"
+        class="common-button post-button">Edit
+      </button>
 
       <button
         (click)="deletePost(post.id)"
